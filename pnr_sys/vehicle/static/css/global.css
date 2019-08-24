@@ -1,0 +1,10 @@
+body {
+    background: url('/static/images/bg-blue.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.dummy-video {
+    background: #616777;
+    height: 370px;
+    margin: 15px;
+}

@@ -1,4 +1,20 @@
 {% extends 'vehicle/base.html' %}
+{% load static %}
 {% block content %}
-    <h1>Index</h1>
+    <div class="card">
+        <div class="card-header">
+            <h1 class="text-center">ACD Vehicle Plate Recognition System</h1>
+        </div>
+        <div class="row">
+            <div class="col-6 p-3">
+                <div class="dummy-video"></div>
+            </div>
+            <div class="col-6 p-4">
+                <h2>Time: <span id="index-time"></span></h2>
+                <h2>Date: <span id="index-date"></span></h2>
+                <hr>
+                <button class="btn btn-block btn-outline-success">Manual Input</button>
+            </div>
+        </div>
+    </div>
 {% endblock content %}

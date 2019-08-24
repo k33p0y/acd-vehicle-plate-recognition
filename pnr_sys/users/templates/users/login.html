@@ -1,4 +1,30 @@
 {% extends 'vehicle/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
 {% block content %}
-    <h1>Index</h1>
+    <div class="row">
+        <div class="col-8"></div>
+        <div class="col-4">
+            <div class="card">
+                <center>
+                <img src="{% static 'images/car.svg' %}" class="card-img-top" alt="Logo" style="width: 50%;">
+                </center>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <fieldset class="form-group">
+                            <legend class="border-bottom mb-4">Sign In</legend>
+                            {{ form | crispy }}
+                        </fieldset>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-outline-primary btn-block">Login</button>
+                        </div>
+                    </form>
+                </div>
+                {% comment %} <div class="card-footer">
+                    <small class="text-muted">Last updated 3 mins ago</small>
+                </div> {% endcomment %}
+            </div>
+        </div>
+    </div>
 {% endblock content %}

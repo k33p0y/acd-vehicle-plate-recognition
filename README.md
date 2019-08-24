@@ -35,3 +35,9 @@ cd pnr_sys
 python manage.py migrate
 python manage.py runserver
 ```
+
+## Create SuperUser
+
+```()
+python manage.py createsuperuser
+```
