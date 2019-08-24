@@ -25,3 +25,13 @@ pip install virtualenv
 ```()
 python -m django --version
 ```
+
+## Running
+
+1. Migrate
+
+```()
+cd pnr_sys
+python manage.py migrate
+python manage.py runserver
+```
