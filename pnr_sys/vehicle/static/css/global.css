@@ -8,3 +8,10 @@ body {
     height: 370px;
     margin: 15px;
 }
+
+.plate {
+    padding: 30px;
+    font-size: 5em;
+    border: 2px dashed;
+    margin-top: 15px;
+}
