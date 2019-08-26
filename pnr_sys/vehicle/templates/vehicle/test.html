@@ -1,0 +1,22 @@
+{% extends 'vehicle/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="card">
+        <div class="card-header">
+            <h1 class="text-center">TEST</h1>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-6 p-3">
+                <div class="dummy-video">
+                    <!-- <video src="/api/live-feed" width="1280px" height="720px" /> -->
+                    <!-- <iframe width=”1280” height=”720” src="/api/live-feed" frameborder="0" allowfullscreen></iframe> -->
+                    <!-- <video id="player" src="/api/live-feed" width="100%" height="auto" autoplay="autoplay" controls>
+                        <source  type="multipart/x-mixed-replace">
+                    </video> -->
+                    <!-- <iframe width=”640” height=”360” src="/api/live-feed" frameborder="0" allowfullscreen></iframe> -->
+                    <img src="/api/live-feed" alt="" width="100%" height="100%">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

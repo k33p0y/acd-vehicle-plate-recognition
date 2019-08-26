@@ -4,6 +4,7 @@
     "python.linting.enabled": true,
     "python.linting.pylintArgs": [
         "--extension-pkg-whitelist=cv2",
-        "--errors-only"
+        "--errors-only",
+        "--load-plugins=pylint_django"
     ]
 }
