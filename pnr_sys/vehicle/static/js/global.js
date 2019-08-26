@@ -1,6 +1,6 @@
 ((w, $) =>
 {
-    'use strict';
+    // 'use strict';
 
     w.timer = () =>
     {
@@ -13,5 +13,5 @@
         }, 1000);
     };
 
-    timer();
+    w.timer();
 })(window, jQuery);

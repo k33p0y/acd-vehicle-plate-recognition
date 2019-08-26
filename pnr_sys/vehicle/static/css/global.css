@@ -6,11 +6,11 @@ body {
 .dummy-video {
     background: #616777;
     height: 370px;
-    margin: 15px;
+    margin: 15px 0 0 15px;
 }
 
 .plate {
-    padding: 30px;
+    padding: 20px 30px;
     font-size: 5em;
     border: 2px dashed;
     margin-top: 15px;

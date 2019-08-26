@@ -1,2 +1,5 @@
 **/__pycache__/
 pnr_sys/db.sqlite3
+localenv36/
+localenv/
+.vscode/

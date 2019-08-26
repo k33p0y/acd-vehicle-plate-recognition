@@ -7,15 +7,58 @@
         </div>
         <div class="row">
             <div class="col-6 p-3">
-                <div class="dummy-video"></div>
+                <div class="dummy-video">
+                    <img id="img-canvas" width="100%" height="100%">
+                </div>
             </div>
             <div class="col-6 p-4">
+                <h4>
+                    Status: <span id="camera-status"></span>
+                </h4>
                 <h2>Time: <span id="index-time"></span></h2>
                 <h2>Date: <span id="index-date"></span></h2>
                 <hr>
                 <button class="btn btn-block btn-outline-success">Manual Input</button>
-                <div class="plate text-center">XYZ 123</div>
+                <div id="plate-number" class="plate text-center">--- ---</div>
+
             </div>
         </div>
     </div>
 {% endblock content %}
+
+{% block script %}
+<!-- <script src="{% static 'js/opencv.js' %}"></script> -->
+<script>
+    setInterval(() => {
+        var request = new XMLHttpRequest();
+        request.open('GET', '/api', true);
+
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                // Success!
+                var resp = JSON.parse(this.response);
+                // console.log(resp);
+                $('#img-canvas').attr('src', resp.img);
+                if (resp.check) {
+                    $('#camera-status').html(`<span class="text-success">Running...</span>`);
+                } else {
+                    $('#camera-status').html(`<span class="text-muted">Stopped</span>`);
+                }
+                $('#plate-number').text(resp.plate);
+            } else {
+                // We reached our target server, but it returned an error
+                $('#camera-status').html(`<span class="text-muted">Stopped</span>`);
+                $('#plate-number').text('--- ---');
+            }
+        };
+
+        request.onerror = function() {
+            // There was a connection error of some sort
+            $('#camera-status').html(`<span class="text-muted">Stopped</span>`);
+            $('#plate-number').text('--- ---');
+        };
+
+        request.send();
+    }, 5000);
+</script>
+{% endblock script %}
