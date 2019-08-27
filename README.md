@@ -41,3 +41,12 @@ python manage.py runserver
 ```()
 python manage.py createsuperuser
 ```
+
+## Install Required Packages
+
+```()
+pip install wheel
+pip install pytesseract
+pip install Pillow
+pip install opencv-python or pip install opencv-contrib-python-headless
+```
