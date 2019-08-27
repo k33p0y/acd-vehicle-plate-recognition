@@ -67,13 +67,20 @@ def live_feed(request):
             
             ptext = pytesseract.image_to_string(Image.fromarray(gray))
             print(ptext)
-            r = re.findall(r'[A-Z]+\s+[0-9]+', ptext)
-            # print(r)
-            # print(len(r))
+            r1 = re.findall(r'([A-Z]+\s+[\d]+)', ptext)
+            # print(r1)
+            # print(len(r1))
             text = ''
-            if len(r) > 0:
-                text = r[0].replace(' ', '')
+            if len(r1) > 0:
+                text = r1[0].replace(' ', '')
                 text = text.replace('\n', '')
+            else:
+                r2 = re.findall(r'([\d]+-[\d]+)', ptext)
+                # print(r2)
+                # print(len(r2))
+                if len(r2) > 0:
+                    text = r2[0].replace(' ', '')
+                    text = text.replace('\n', '')
 
             ret, jpeg = cv2.imencode('.jpg', image)
 
