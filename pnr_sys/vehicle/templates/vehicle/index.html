@@ -18,9 +18,34 @@
                 <h2>Time: <span id="index-time"></span></h2>
                 <h2>Date: <span id="index-date"></span></h2>
                 <hr>
-                <button class="btn btn-block btn-outline-success">Manual Input</button>
+                <button class="btn btn-block btn-outline-success" data-toggle="modal" data-target="#manualInputModal">Manual Input</button>
                 <div id="plate-number" class="plate text-center">--- ---</div>
                 <div id="registration-status"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="manualInputModal" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manual Input</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                      <label for="plate_number">Plate Number</label>
+                      <input type="text" class="form-control text-uppercase" name="plate_number" id="plate_number" aria-describedby="helpId" placeholder="">
+                      <small id="helpId" class="form-text text-muted">Input plate number for manual search or registration of vehicles.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <!-- <button type="button" class="btn btn-primary">Save</button> -->
+                </div>
             </div>
         </div>
     </div>
@@ -49,6 +74,7 @@
                 // We reached our target server, but it returned an error
                 $('#camera-status').html(`<span class="text-muted">Stopped</span>`);
                 $('#plate-number').text('--- ---');
+                $('#registration-status').html(`<span class="text-muted">N/A</span>`);
             }
         };
 
@@ -56,6 +82,7 @@
             // There was a connection error of some sort
             $('#camera-status').html(`<span class="text-muted">Stopped</span>`);
             $('#plate-number').text('--- ---');
+            $('#registration-status').html(`<span class="text-muted">N/A</span>`);
         };
 
         request.send();

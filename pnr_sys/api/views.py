@@ -16,6 +16,7 @@ def check_captured(request):
     plate = ''
     status = False
     registerd = False
+    v_type = 'na'
 
     latest = Latest.objects.first()
     if latest != None:
@@ -23,15 +24,25 @@ def check_captured(request):
         status = latest.status
     
     MVehicle = apps.get_model('vehicle', 'Vehicle')
-    v = MVehicle.objects.filter(plate=plate).first()
-    print(v)
-    if v != None:
-        registerd = True
+    all_v = MVehicle.objects.all()
+    if len(all_v) > 0:
+        v = MVehicle.objects.filter(plate=plate).first()
+        print(v)
+        if v != None:
+            registerd = True
+
+    if len(plate) == 7:
+        v_type = 'car'
+    if len(plate) == 8:
+        v_type = 'motorcycle'
+    if len(plate) == 12:
+        v_type = 'motorcycle'
 
     context = {
         'plate': plate,
         'status': status,
-        'registerd': registerd
+        'registerd': registerd,
+        'v_type': v_type
     }
     print(context)
 
@@ -72,14 +83,14 @@ def live_feed(request):
             # print(len(r1))
             text = ''
             if len(r1) > 0:
-                text = r1[0].replace(' ', '')
+                text = r1[0].replace(' ', '-')
                 text = text.replace('\n', '')
             else:
                 r2 = re.findall(r'([\d]+-[\d]+)', ptext)
                 # print(r2)
                 # print(len(r2))
                 if len(r2) > 0:
-                    text = r2[0].replace(' ', '')
+                    text = r2[0].replace(' ', '-')
                     text = text.replace('\n', '')
 
             ret, jpeg = cv2.imencode('.jpg', image)

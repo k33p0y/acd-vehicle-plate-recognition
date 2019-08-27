@@ -5,13 +5,13 @@ body {
 
 .dummy-video {
     background: #616777;
-    height: 370px;
+    height: 325px;
     margin: 15px 0 0 15px;
 }
 
 .plate {
-    padding: 0 30px;
-    font-size: 5em;
+    padding: 15px 30px;
+    font-size: 3em;
     border: 2px dashed;
     margin-top: 15px;
 }
