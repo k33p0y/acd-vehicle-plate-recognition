@@ -50,11 +50,23 @@ def live_feed(request):
         def get_frame(self):
             image = self.frame
 
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+            gray = image
+            # RESIZING
+            gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+            # gray = cv2.resize(gray, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+            # gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
+            # COLOR
+            gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
+            # TRESHHOLD
+            gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+            # gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+            # gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2)
+            # BLUR
             gray = cv2.medianBlur(gray, 3)
+            # gray = cv2.bilateralFilter(gray,9,75,75)
+            
             ptext = pytesseract.image_to_string(Image.fromarray(gray))
-            # print(ptext)
+            print(ptext)
             r = re.findall(r'[A-Z]+\s+[0-9]+', ptext)
             # print(r)
             # print(len(r))
