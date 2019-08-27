@@ -10,7 +10,7 @@ body {
 }
 
 .plate {
-    padding: 20px 30px;
+    padding: 0 30px;
     font-size: 5em;
     border: 2px dashed;
     margin-top: 15px;

@@ -20,7 +20,7 @@
                 <hr>
                 <button class="btn btn-block btn-outline-success">Manual Input</button>
                 <div id="plate-number" class="plate text-center">--- ---</div>
-
+                <div id="registration-status"></div>
             </div>
         </div>
     </div>
@@ -40,6 +40,11 @@
                 console.log(resp);
                 $('#camera-status').html(`<span class="text-success">Running...</span>`);
                 $('#plate-number').text(resp.plate);
+                if (resp.registered) {
+                    $('#registration-status').html(`<span class="text-success">Registered to <b>NineCloud</b></span>`);
+                } else {
+                    $('#registration-status').html(`<span class="text-warning">Unregistered</span>`);
+                }
             } else {
                 // We reached our target server, but it returned an error
                 $('#camera-status').html(`<span class="text-muted">Stopped</span>`);

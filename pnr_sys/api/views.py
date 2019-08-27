@@ -1,53 +1,41 @@
 from django.shortcuts import render
-from django.http import JsonResponse
-import cv2
+from django.http import JsonResponse, StreamingHttpResponse
+from django.apps import apps
 from PIL import Image
-import base64
-from django.http import StreamingHttpResponse
-import threading
 from .models import Latest
 import pytesseract
+import threading
+import base64
+import cv2
 import os
 import re
+
 pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
 
-def get_image(request):
-    cam = cv2.VideoCapture(0)
-    plate_number = '--- ---'
-    check = True
-    img = ''
-
-    if cam.isOpened():
-        check, frame = cam.read()
-        print(check)
-        print(frame)
-
-        img_cv = cv2.resize(frame, (400, 300))
-        img_cv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
-        success, img = cv2.imencode('.jpg', img_cv)
-        img = Image.fromarray(img)
-        img = base64.b64encode(img.tobytes())
-        img = 'data:image/jpeg;base64,' + img.decode("utf-8")
-    else:
-        check = False
-
-    cam.release()
-
-    return JsonResponse({ 'check': check, 'img': img, 'plate': plate_number });
-
 def check_captured(request):
+    plate = ''
+    status = False
+    registerd = False
+
     latest = Latest.objects.first()
-    if latest == None:
-        plate = ''
-        status = False
-    else:
+    if latest != None:
         plate = latest.plate
         status = latest.status
+    
+    MVehicle = apps.get_model('vehicle', 'Vehicle')
+    v = MVehicle.objects.filter(plate=plate).first()
+    print(v)
+    if v != None:
+        registerd = True
 
-    print(plate)
-    print(status)
+    context = {
+        'plate': plate,
+        'status': status,
+        'registerd': registerd
+    }
+    print(context)
 
-    return JsonResponse({'plate': plate, 'status': status });
+    return JsonResponse(context);
 
 def live_feed(request):
     class VideoCamera(object):
@@ -73,6 +61,7 @@ def live_feed(request):
             text = ''
             if len(r) > 0:
                 text = r[0].replace(' ', '')
+                text = text.replace('\n', '')
 
             ret, jpeg = cv2.imencode('.jpg', image)
 
