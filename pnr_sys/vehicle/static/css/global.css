@@ -1,0 +1,17 @@
+body {
+    background: url('/static/images/bg-blue.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.dummy-video {
+    background: #616777;
+    height: 370px;
+    margin: 15px 0 0 15px;
+}
+
+.plate {
+    padding: 0 30px;
+    font-size: 5em;
+    border: 2px dashed;
+    margin-top: 15px;
+}
