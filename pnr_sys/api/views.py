@@ -5,12 +5,32 @@ from PIL import Image
 from .models import Latest
 import pytesseract
 import threading
-import base64
 import cv2
 import os
 import re
 
 pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
+
+def check_camera(request):
+    cam = cv2.VideoCapture(0)
+
+    i = 0
+    while True:
+        check, frame = cam.read()
+        print(frame)
+
+        cv2.imshow('Testing Camera...', frame)
+        key = cv2.waitKey(1)
+
+        if key == ord('q'):
+            break
+
+        i += 1
+
+    cam.release()
+    cv2.destroyAllWindows()
+
+    return JsonResponse({'status': True, 'time_frame': i})
 
 def check_captured(request):
     plate = ''
@@ -37,6 +57,9 @@ def check_captured(request):
         v_type = 'motorcycle'
     if len(plate) == 12:
         v_type = 'motorcycle'
+
+    if plate == '':
+        plate = '--- ---'
 
     context = {
         'plate': plate,
@@ -69,7 +92,7 @@ def live_feed(request):
             # COLOR
             gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
             # TRESHHOLD
-            gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+            gray = cv2.threshold(gray, 160, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
             # gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
             # gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2)
             # BLUR
