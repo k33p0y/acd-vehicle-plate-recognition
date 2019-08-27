@@ -84,7 +84,13 @@ def live_feed(request):
         def get_frame(self):
             image = self.frame
 
-            gray = image
+            gray = self.extract_text()
+
+            ret, jpeg = cv2.imencode('.png', image)
+            return jpeg.tobytes()
+
+        def extract_text(self):
+            gray = self.frame
             # RESIZING
             gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
             # gray = cv2.resize(gray, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
@@ -116,8 +122,6 @@ def live_feed(request):
                     text = r2[0].replace(' ', '-')
                     text = text.replace('\n', '')
 
-            ret, jpeg = cv2.imencode('.jpg', image)
-
             if text != '':
                 latest = Latest.objects.first()
                 if latest == None:
@@ -128,7 +132,7 @@ def live_feed(request):
                     latest.status = True
                     latest.save()
 
-            return jpeg.tobytes()
+            return gray
 
         def update(self):
             while True:
@@ -142,7 +146,7 @@ def live_feed(request):
         while True:
             frame = cam.get_frame()
             yield(b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+                b'Content-Type: image/png\r\n\r\n' + frame + b'\r\n\r\n')
                 
     try:
         return StreamingHttpResponse(gen(VideoCamera()), content_type="multipart/x-mixed-replace;boundary=frame")
