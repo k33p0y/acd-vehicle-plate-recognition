@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseServerError
 from django.views.decorators import gzip
 from django.apps import apps
+from django.views.decorators import gzip
 from PIL import Image
 from .models import Latest
 import pytesseract
@@ -171,6 +172,52 @@ def live_feed_old(request):
 
             ret, jpeg = cv2.imencode('.jpg', image)
             return jpeg.tobytes()
+
+        def extract_text(self):
+            gray = self.frame
+            # RESIZING
+            gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+            # gray = cv2.resize(gray, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+            # gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
+            # COLOR
+            gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
+            # TRESHHOLD
+            gray = cv2.threshold(gray, 160, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+            # gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+            # gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2)
+            # BLUR
+            gray = cv2.medianBlur(gray, 3)
+            # gray = cv2.bilateralFilter(gray,9,75,75)
+            
+            ptext = pytesseract.image_to_string(Image.fromarray(gray))
+            print(ptext)
+            if len(ptext) > 6:
+                r1 = re.findall(r'([A-Z]+\s+[\d]+)', ptext)
+                # print(r1)
+                # print(len(r1))
+                text = ''
+                if len(r1) > 0:
+                    text = r1[0].replace(' ', '-')
+                    text = text.replace('\n', '')
+                else:
+                    r2 = re.findall(r'([\d]+-[\d]+)', ptext)
+                    # print(r2)
+                    # print(len(r2))
+                    if len(r2) > 0:
+                        text = r2[0].replace(' ', '-')
+                        text = text.replace('\n', '')
+
+                if text != '':
+                    latest = Latest.objects.first()
+                    if latest == None:
+                        l = Latest(plate=text, status=True)
+                        l.save()
+                    else:
+                        latest.plate = text
+                        latest.status = True
+                        latest.save()
+
+            return gray
 
         def update(self):
             while True:
