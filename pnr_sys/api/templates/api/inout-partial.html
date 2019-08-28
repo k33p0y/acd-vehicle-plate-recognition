@@ -1,0 +1,31 @@
+{% if logged %}
+    <button type="button" class="btn btn-danger btn-block" onclick="parkInOut()">Park-Out Vehicle</button>
+{% else %}
+    <button type="button" class="btn btn-success btn-block" onclick="parkInOut()">Park-In Vehicle</button>
+{% endif %}
+
+{% block script %}
+<script>
+    var loading = false;
+    parkInOut = () => {
+        console.log(loading);
+        if (!loading) {
+            loading = true;
+            request.open('GET', '/api/park-inout', true);
+
+            request.onload = function() {
+                if (this.status >= 200 && this.status < 400) {
+                    var resp = JSON.parse(this.response);
+                    console.info(`parked-${resp.flow}`);
+                } else {
+                    console.error('parked error');
+                }
+            };
+            request.onerror = function() {
+                console.error('parked error');
+            };
+            request.send();
+        }
+    }
+</script>
+{% endblock script %}

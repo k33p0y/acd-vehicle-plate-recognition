@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseServerError
 from django.views.decorators import gzip
 from django.apps import apps
+from django.utils import timezone
 from PIL import Image
 from .models import Latest
 import pytesseract
@@ -11,6 +12,7 @@ import os
 import re
 import platform
 import sys
+from datetime import datetime, timedelta, time
 
 if platform.system() == 'Linux':
     pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
@@ -18,10 +20,6 @@ if platform.system() == 'Windows':
     pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
 if platform.system() == 'OS X' or platform.system() == 'Darwin':
     pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
-
-def sample_image(request):
-
-    return ''
 
 def check_camera(request):
     cam = cv2.VideoCapture(0)
@@ -48,21 +46,36 @@ def check_captured(request):
     print(platform.system())
     plate = ''
     status = False
-    registerd = False
-    v_type = 'na'
+    registered = False
+    v_type = 'n/a'
+    same_entry = False
+    is_valid = True
 
     latest = Latest.objects.first()
     if latest != None:
         plate = latest.plate
         status = latest.status
+
+    all_l = Latest.objects.all()
+    if len(all_l) > 1:
+        l1 = Latest.objects.first()
+        l2 = Latest.objects.last()
+        if l1.plate == l2.plate:
+            same_entry = True
+        else:
+            l2.plate = l1.plate
+            l2.status = l2.status
+            l2.save()
+    if len(all_l) == 1:
+        l = Latest(plate=plate, status=status)
+        l.save()
     
-    MVehicle = apps.get_model('vehicle', 'Vehicle')
-    all_v = MVehicle.objects.all()
+    Vehicle = apps.get_model('vehicle', 'Vehicle')
+    all_v = Vehicle.objects.all()
     if len(all_v) > 0:
-        v = MVehicle.objects.filter(plate=plate).first()
-        print(v)
+        v = Vehicle.objects.filter(plate=plate).exclude(owner__exact='').first()
         if v != None:
-            registerd = True
+            registered = True
 
     if len(plate) == 7:
         v_type = 'car'
@@ -73,12 +86,15 @@ def check_captured(request):
 
     if plate == '':
         plate = '--- ---'
+        is_valid = False
 
     context = {
         'plate': plate,
         'status': status,
-        'registerd': registerd,
-        'v_type': v_type
+        'registered': registered,
+        'v_type': v_type,
+        'same_entry': same_entry,
+        'is_valid': is_valid,
     }
     print(context)
 
@@ -86,15 +102,18 @@ def check_captured(request):
 
 @gzip.gzip_page
 def live_feed(request):
+    activate = request.GET.get('activate', False)
+    print(activate)
+    
     try:
-        return StreamingHttpResponse(gen(VideoCamera()),content_type="multipart/x-mixed-replace;boundary=frame")
+        return StreamingHttpResponse(gen(VideoCamera(), activate),content_type="multipart/x-mixed-replace;boundary=frame")
     except:
         e = sys.exc_info()
         print("aborted", e)
 
-def gen(camera):
+def gen(camera, activate):
         while True:
-            frame = camera.get_frame()
+            frame = camera.get_frame(activate)
             yield(b'--frame\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
@@ -104,9 +123,10 @@ class VideoCamera(object):
     def __del__(self):
         self.video.release()
 
-    def get_frame(self):
+    def get_frame(self, activate):
         (ret, image) = self.video.read()
-        gray = extract_text(image)
+        if activate and activate == 'true':
+            gray = extract_text(image)
         (ret, jpeg) = cv2.imencode('.jpg',image)
         return jpeg.tobytes()
 
@@ -119,7 +139,7 @@ def extract_text(frame):
     # COLOR
     gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
     # TRESHHOLD
-    gray = cv2.threshold(gray, 160, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
     # gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     # gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2)
     # BLUR
@@ -194,4 +214,86 @@ def live_feed_old(request):
     except HttpResponseServerError as e:  # This is bad! replace it with proper handling
         print(e)
         # pass
+
+
+# PARTIALS
+@gzip.gzip_page
+def inout_partial(request):
+    latest = Latest.objects.first()
+    if latest != None:
+        plate = latest.plate
+    else:
+        plate = ''
     
+    registered = False
+    logged = False
+    
+    Vehicle = apps.get_model('vehicle', 'Vehicle')
+    v = Vehicle.objects.filter(plate=plate).first()
+    if v != None:
+        registered = True
+        Log = apps.get_model('vehicle', 'Log')
+        l = Log.objects.filter(vehicle=v, datetime_out__isnull=True).last()
+        if l != None:
+            logged = True    
+
+    context = {
+        'plate': plate,
+        'registered': registered,
+        'logged': logged,
+    }
+    return render(request, 'api/inout-partial.html', context)
+
+@gzip.gzip_page
+def list_partial(request):
+    today = datetime.now().date()
+    tomorrow = today + timedelta(1)
+    today_start = datetime.combine(today, time())
+    today_end = datetime.combine(tomorrow, time())
+
+    Log = apps.get_model('vehicle', 'Log')
+    l = Log.objects.order_by('-pk').filter(datetime_in__gte=today_start, datetime_in__lte=today_end)
+    context = {
+        'logs': l,
+        'total': len(l)
+    }
+    return render(request, 'api/list-partial.html', context)
+
+def park_inout(request):
+    success = False
+    flow = ''
+
+    latest = Latest.objects.first()
+    if latest != None:
+        Vehicle = apps.get_model('vehicle', 'Vehicle')
+        v = Vehicle.objects.filter(plate=latest.plate).first()
+        if v == None:
+            v_type = 'n/a'
+            if len(latest.plate) == 7:
+                v_type = 'car`'
+            if len(latest.plate) == 8:
+                v_type = 'motorcycle'
+            if len(latest.plate) == 12:
+                v_type = 'motorcycle'
+            v = Vehicle(plate=latest.plate, v_type=v_type, guard=request.user)
+            v.save()
+
+        Log = apps.get_model('vehicle', 'Log')
+        l = Log.objects.filter(vehicle=v, datetime_out__isnull=True).last()
+        if l == None:
+            l_in = Log(vehicle=v, guard=request.user, datetime_out=None)
+            l_in.save()
+            flow = 'in'
+        else:
+            l.datetime_out = timezone.now()
+            l.save()
+            flow = 'out'
+        latest.plate = ''
+        latest.save()
+        success = True
+
+    context = {
+        'success': success,
+        'flow': flow,
+    }
+    return JsonResponse(context)
