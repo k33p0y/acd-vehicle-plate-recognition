@@ -50,4 +50,5 @@ pip install pytesseract
 pip install Pillow
 pip install opencv-python or pip install opencv-contrib-python-headless
 pip install django-mathfilters
+pip install django-keyboard-shortcuts
 ```
