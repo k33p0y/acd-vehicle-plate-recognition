@@ -17,6 +17,11 @@ python3 -V
 
 ```()
 pip install virtualenv
+
+in Windows:
+source localenv/Scripts/activate
+in Linux and OSX:
+source localenv/bin/activate
 ```
 
 5. Intall Django
@@ -46,6 +51,7 @@ python manage.py createsuperuser
 
 ```()
 pip install wheel
+pip install django-crispy-forms
 pip install pytesseract
 pip install Pillow
 pip install opencv-python or pip install opencv-contrib-python-headless

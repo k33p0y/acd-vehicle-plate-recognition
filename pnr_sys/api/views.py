@@ -150,9 +150,9 @@ class VideoCamera(object):
         global frame
         (ret, image) = self.video.read()
         frame = image
-        (ret, jpeg) = cv2.imencode('.jpg',image)
         if activate and activate == 'true':
             gray = extract_text()
+        (ret, jpeg) = cv2.imencode('.jpg',image)
         return jpeg.tobytes()
 
 def extract_text():

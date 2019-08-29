@@ -1,6 +1,10 @@
 {% if logged %}
     <button type="button" class="btn btn-danger btn-block" onclick="parkInOut()">Park-Out Vehicle</button>
 {% else %}
+    <div class="form-group">
+      <label for="reason">Reason</label>
+      <textarea class="form-control" name="reason" id="reason" rows="3"></textarea>
+    </div>
     <button type="button" class="btn btn-success btn-block" onclick="parkInOut()">Park-In Vehicle</button>
 {% endif %}
 
