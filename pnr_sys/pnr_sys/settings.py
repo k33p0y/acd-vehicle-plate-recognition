@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'crispy_forms',
     'mathfilters',
+    'keyboard_shortcuts',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -104,6 +105,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+HOTKEYS = [
+    {
+        'keys': 'ctrl+Enter', 'js': 'parkInOut()'
+    },
+    {
+        'keys': 'ctrl+i', 'js': 'openManualInput()'
+    },
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/

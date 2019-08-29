@@ -20,7 +20,7 @@
                 <h2>Time: <span id="index-time"></span></h2>
                 <h2>Date: <span id="index-date"></span></h2>
                 <hr>
-                <button class="btn btn-block btn-outline-success" data-toggle="modal" data-target="#manualInputModal">Manual Input</button>
+                <button class="btn btn-block btn-outline-success" onclick="openManualInput()">Manual Input</button>
                 <div id="plate-number" class="plate text-center">--- ---</div>
                 <table class="table table-light table-bordered">
                     <tbody>
@@ -68,7 +68,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="plate_number">Plate Number</label>
-                        <input type="text" class="form-control text-uppercase" name="plate_number" id="plate_number" onkeypress="manualInputKeyPress(event)" aria-describedby="helpId" placeholder="TST-123" minlength="7" maxlength="16">
+                        <input type="text" class="form-control text-uppercase" name="plate_number" id="plate_number" onkeypress="manualInputKeyPress(event)" aria-describedby="helpId" placeholder="TST-123" minlength="7" maxlength="16" autofocus>
                         <small id="helpId" class="form-text text-muted">
                             Input plate number for manual search or registration of vehicles. <br> 
                             (use SPACE or DASH as separator) <br>
@@ -171,6 +171,13 @@
             };
             request.send();
         }
+    };
+
+    openManualInput = () => {
+        $('#manualInputModal').modal('show');
+        setTimeout(() => {
+            $('#plate_number').focus();
+        }, 500);
     };
 
     manualInputKeyPress = ($e) => {
