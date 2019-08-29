@@ -7,12 +7,14 @@ from PIL import Image
 from .models import Latest
 import pytesseract
 import threading
+import schedule
 import cv2
 import os
 import re
 import platform
 import sys
 from datetime import datetime, timedelta, time
+import time as ttime
 
 if platform.system() == 'Linux':
     pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
@@ -20,6 +22,9 @@ if platform.system() == 'Windows':
     pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
 if platform.system() == 'OS X' or platform.system() == 'Darwin':
     pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
+
+num_frames = 0
+frame = None
 
 def check_camera(request):
     cam = cv2.VideoCapture(0)
@@ -45,6 +50,7 @@ def check_camera(request):
 def check_captured(request):
     print(platform.system())
     plate = ''
+    fps = 0
     status = False
     registered = False
     v_type = 'n/a'
@@ -54,6 +60,7 @@ def check_captured(request):
     latest = Latest.objects.first()
     if latest != None:
         plate = latest.plate
+        fps = latest.fps
         status = latest.status
 
     all_l = Latest.objects.all()
@@ -64,10 +71,11 @@ def check_captured(request):
             same_entry = True
         else:
             l2.plate = l1.plate
+            l2.fps = l1.fps
             l2.status = l2.status
             l2.save()
     if len(all_l) == 1:
-        l = Latest(plate=plate, status=status)
+        l = Latest(plate=plate, fps=fps, status=status)
         l.save()
     
     Vehicle = apps.get_model('vehicle', 'Vehicle')
@@ -92,6 +100,7 @@ def check_captured(request):
 
     context = {
         'plate': plate,
+        'fps': fps,
         'status': status,
         'registered': registered,
         'v_type': v_type,
@@ -114,10 +123,22 @@ def live_feed(request):
         print("aborted", e)
 
 def gen(camera, activate):
-        while True:
-            frame = camera.get_frame(activate)
-            yield(b'--frame\r\n'
-            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+    global num_frames
+    start_time = datetime.now()
+    end_time = start_time + timedelta(seconds=1)
+    while True:
+        frame = camera.get_frame(activate)
+        num_frames = num_frames + 1
+        if end_time < datetime.now():
+            l = Latest.objects.first()
+            l.fps = num_frames
+            l.save()
+            num_frames = 0
+            start_time = datetime.now()
+            end_time = start_time + timedelta(seconds=1)
+
+        yield(b'--frame\r\n'
+        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 class VideoCamera(object):
     def __init__(self):
@@ -126,13 +147,16 @@ class VideoCamera(object):
         self.video.release()
 
     def get_frame(self, activate):
+        global frame
         (ret, image) = self.video.read()
-        if activate and activate == 'true':
-            gray = extract_text(image)
+        frame = image
         (ret, jpeg) = cv2.imencode('.jpg',image)
+        if activate and activate == 'true':
+            gray = extract_text()
         return jpeg.tobytes()
 
-def extract_text(frame):
+def extract_text():
+    global frame
     gray = frame
     # RESIZING
     gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)

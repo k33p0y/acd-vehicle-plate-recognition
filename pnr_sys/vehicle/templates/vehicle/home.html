@@ -89,6 +89,7 @@
 <!-- <script src="{% static 'js/opencv.js' %}"></script> -->
 <script>
     var request = new XMLHttpRequest();
+    var modal_open = false;
 
     setInterval(() => {
         fetchUpdates();
@@ -104,8 +105,11 @@
                 $('#is_first_load').val('no');
                 var resp = JSON.parse(this.response);
                 console.log(resp);
-                $('#camera-status').html(`<span class="text-success">Running...</span>`);
+                $('#camera-status').html(`<span class="text-success">Running... <span class="text-muted small">${resp.fps} fps</span></span>`);
                 $('#plate-number').text(resp.plate);
+                if (!modal_open) {
+                    $('#plate_number').val(resp.plate);
+                }
                 var data = {
                     status: {type: 'warning', text: 'Unregistered'},
                     type: {type: 'primary', text: resp.v_type.toUpperCase()},
@@ -174,6 +178,7 @@
     };
 
     openManualInput = () => {
+        modal_open = true;
         $('#manualInputModal').modal('show');
         setTimeout(() => {
             $('#plate_number').focus();
@@ -193,6 +198,7 @@
         }
 
         $('#manualInputModal').modal('hide');
+        modal_open =false;
         request.open('GET', '/api/manual-input?plate=' + plate, true);
 
         request.onload = function() {

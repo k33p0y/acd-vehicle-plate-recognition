@@ -8,6 +8,7 @@ class Vehicle(models.Model):
     owner = models.CharField(max_length=255)
     color = models.CharField(max_length=255)
     guard = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.BooleanField(default=True)
 
     def __str__(self):
         return self.plate
@@ -24,6 +25,7 @@ class Log(models.Model):
     guard = models.ForeignKey(User, on_delete=models.CASCADE)
     datetime_in = models.DateTimeField(default=timezone.now)
     datetime_out = models.DateTimeField(default=None, null=True)
+    status = models.BooleanField(default=True)
 
     def __str__(self):
         return self.vehicle.plate
