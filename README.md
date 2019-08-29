@@ -59,3 +59,10 @@ pip install django-mathfilters
 pip install django-keyboard-shortcuts
 pip install schedule
 ```
+
+## UPDATING REPO
+
+```()
+git stash
+git pull
+```
