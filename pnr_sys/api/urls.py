@@ -11,4 +11,5 @@ urlpatterns = [
     path('list-partial/', views.list_partial, name='api-list-partial'),
 
     path('park-inout', views.park_inout, name='api-park-inout'),
+    path('manual-input', views.manual_input, name='api-manual-input'),
 ]

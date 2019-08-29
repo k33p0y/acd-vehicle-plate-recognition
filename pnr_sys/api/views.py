@@ -83,6 +83,8 @@ def check_captured(request):
         v_type = 'motorcycle'
     if len(plate) == 12:
         v_type = 'motorcycle'
+    if len(plate) == 16:
+        v_type = 'car'
 
     if plate == '':
         plate = '--- ---'
@@ -163,7 +165,7 @@ def extract_text(frame):
             text = r2[0].replace(' ', '-')
             text = text.replace('\n', '')
 
-    if text != '':
+    if text != '' and len(text) >= 7:
         latest = Latest.objects.first()
         if latest == None:
             l = Latest(plate=text, status=True)
@@ -211,9 +213,9 @@ def live_feed_old(request):
                 
     try:
         return StreamingHttpResponse(genold(VideoCameraOld()), content_type="multipart/x-mixed-replace;boundary=frame")
-    except HttpResponseServerError as e:  # This is bad! replace it with proper handling
-        print(e)
-        # pass
+    except:  # This is bad! replace it with proper handling
+        # print(e)
+        pass
 
 
 # PARTIALS
@@ -295,5 +297,23 @@ def park_inout(request):
     context = {
         'success': success,
         'flow': flow,
+    }
+    return JsonResponse(context)
+
+def manual_input(request):
+    plate = request.GET.get('plate', '')
+    plate = plate.replace(' ', '-')
+
+    l = Latest.objects.first()
+    if l == None:
+        l_new = Latest(plate=plate, status=True)
+        l_new.save()
+    else:
+        l.plate = plate
+        l.status = True
+        l.save()
+
+    context = {
+        'success': True
     }
     return JsonResponse(context)

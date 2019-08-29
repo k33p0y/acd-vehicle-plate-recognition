@@ -67,14 +67,18 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                      <label for="plate_number">Plate Number</label>
-                      <input type="text" class="form-control text-uppercase" name="plate_number" id="plate_number" aria-describedby="helpId" placeholder="">
-                      <small id="helpId" class="form-text text-muted">Input plate number for manual search or registration of vehicles.</small>
+                        <label for="plate_number">Plate Number</label>
+                        <input type="text" class="form-control text-uppercase" name="plate_number" id="plate_number" onkeypress="manualInputKeyPress(event)" aria-describedby="helpId" placeholder="TST-123" minlength="7" maxlength="16">
+                        <small id="helpId" class="form-text text-muted">
+                            Input plate number for manual search or registration of vehicles. <br> 
+                            (use SPACE or DASH as separator) <br>
+                            Characters should be from 7-16 length.
+                        </small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <!-- <button type="button" class="btn btn-primary">Save</button> -->
+                    <button type="button" class="btn btn-primary" onclick="manualInput()">Confirm</button>
                 </div>
             </div>
         </div>
@@ -87,6 +91,10 @@
     var request = new XMLHttpRequest();
 
     setInterval(() => {
+        fetchUpdates();
+    }, 5000);
+
+    fetchUpdates = () => {
         request.open('GET', '/api/check-captured', true);
 
         request.onload = function() {
@@ -131,7 +139,7 @@
         };
 
         request.send();
-    }, 5000);
+    };
 
     clear = () => {
         $('#camera-status').html(`<span class="text-muted">Stopped</span>`);
@@ -164,5 +172,36 @@
             request.send();
         }
     };
+
+    manualInputKeyPress = ($e) => {
+        if ($e.keyCode == 13) {
+            manualInput();
+        }
+    };
+
+    manualInput = () => {
+        plate = $('#plate_number').val().toUpperCase();
+        if (plate.length < 7 || plate.lenth > 16) {
+            return false;
+        }
+
+        $('#manualInputModal').modal('hide');
+        request.open('GET', '/api/manual-input?plate=' + plate, true);
+
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                var resp = JSON.parse(this.response);
+                console.info(`input success ${resp.success}`);
+                $('#plate_number').val('');
+                fetchUpdates();
+            } else {
+                console.error('input error');
+            }
+        };
+        request.onerror = function() {
+            console.error('input error');
+        };
+        request.send();
+    }
 </script>
 {% endblock script %}
