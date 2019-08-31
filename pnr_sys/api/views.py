@@ -307,7 +307,8 @@ def park_inout(request):
         Log = apps.get_model('vehicle', 'Log')
         l = Log.objects.filter(vehicle=v, datetime_out__isnull=True).last()
         if l == None:
-            l_in = Log(vehicle=v, guard=request.user, datetime_out=None)
+            reason = request.GET.get('reason')
+            l_in = Log(vehicle=v, guard=request.user, datetime_out=None, reason=reason)
             l_in.save()
             flow = 'in'
         else:

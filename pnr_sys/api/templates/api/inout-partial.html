@@ -1,9 +1,12 @@
 {% if logged %}
+    <input type="hidden" id="flow" value="out">
     <button type="button" class="btn btn-danger btn-block" onclick="parkInOut()">Park-Out Vehicle</button>
 {% else %}
+    <input type="hidden" id="flow" value="in">
     <div class="form-group">
       <label for="reason">Reason</label>
-      <textarea class="form-control" name="reason" id="reason" rows="3"></textarea>
+      <input type="text" name="reason" id="reason" class="form-control" value="" onkeypress="inputReason(event)" autofocus>
+      <p class="form-text text-danger" id="help-text"></p>
     </div>
     <button type="button" class="btn btn-success btn-block" onclick="parkInOut()">Park-In Vehicle</button>
 {% endif %}
@@ -15,7 +18,15 @@
         console.log(loading);
         if (!loading) {
             loading = true;
-            request.open('GET', '/api/park-inout', true);
+            var reason = $('#reason').val();
+            var flow = $('#flow').val();
+            if (reason.trim().length == 0 && flow == 'in') {
+                $('#help-text').html('Reason is required');
+                loading = false;
+                return false;
+            }
+
+            request.open('GET', '/api/park-inout?reason=' + reason, true);
 
             request.onload = function() {
                 if (this.status >= 200 && this.status < 400) {
@@ -24,12 +35,20 @@
                 } else {
                     console.error('parked error');
                 }
+                loading = false;
             };
             request.onerror = function() {
+                loading = false;
                 console.error('parked error');
             };
             request.send();
         }
     }
+
+    inputReason = ($e) => {
+        if ($e.keyCode == 13) {
+            parkInOut();
+        }
+    };
 </script>
 {% endblock script %}
