@@ -2,7 +2,7 @@
 <table style="margin-left: 15px;" class="table table-light table-hover table-striped">
     <thead class="thead-light">
         <tr>
-            <th colspan="5">As of Today: {{ total }} in Total</th>
+            <th colspan="5">As of Today: <span class="text-info">{{ records }}</span> recorded | <span class="text-success">{{ parked_in }}</span> still parked-in </th>
         </tr>
         <tr>
             <th>#</th>
@@ -15,11 +15,15 @@
     <tbody>
         {% for item in logs %}
         <tr>
-            <td>{{ total | sub:forloop.counter0 }}</td>
+            <td>{{ records | sub:forloop.counter0 }}</td>
             <td>{{ item.vehicle.plate }}</td>
             <td>{{ item.datetime_in | date:'h:i A' }}</td>
             <td>{{ item.datetime_out | date:'h:i A' }}</td>
-            <td></td>
+            <td>
+                {% if item.vehicle.owner == '' %}
+                  <a data-toggle="modal" data-target="#registerModal" class="text-success" title="Regsiter Vehicle"><i class="fa fa-plus-square" aria-hidden="true"></i></a>
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </tbody>
@@ -33,3 +37,47 @@
         </tr>
     </tfoot>
 </table>
+
+<!-- Register Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Regsiter Vehicle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td scope="row">Plate #</td>
+                            <td id="t-plate"></td>
+                        </tr>
+                        <tr>
+                            <td scope="row">Type</td>
+                            <td id="t-type"></td>
+                        </tr>
+                        <tr>
+                            <td scope="row">First Entry At</td>
+                            <td id="t-first"></td>
+                        </tr>
+                        <tr>
+                            <td scope="row">Registered At</td>
+                            <td id="t-registered"></td>
+                        </tr>
+                        <tr>
+                            <td scope="row">Updated By</td>
+                            <td id="t-guard"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

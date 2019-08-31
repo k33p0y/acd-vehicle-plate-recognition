@@ -15,15 +15,20 @@
 <script>
     var loading = false;
     parkInOut = () => {
-        console.log(loading);
         if (!loading) {
+            $('.btn').addClass('hide');
+            $('.form-control').addClass('hide');
             loading = true;
             var reason = $('#reason').val();
             var flow = $('#flow').val();
-            if (reason.trim().length == 0 && flow == 'in') {
-                $('#help-text').html('Reason is required');
-                loading = false;
-                return false;
+            if (flow == 'in') {
+                if (reason.trim().length == 0) {
+                    $('#help-text').html('Reason is required');
+                    loading = false;
+                    $('.btn').removeClass('hide');
+                    $('.form-control').removeClass('hide');
+                    return false;
+                }
             }
 
             request.open('GET', '/api/park-inout?reason=' + reason, true);
@@ -36,9 +41,13 @@
                     console.error('parked error');
                 }
                 loading = false;
+                $('.btn').removeClass('hide');
+                $('.form-control').removeClass('hide');
             };
             request.onerror = function() {
                 loading = false;
+                $('.btn').removeClass('hide');
+                $('.form-control').removeClass('hide');
                 console.error('parked error');
             };
             request.send();

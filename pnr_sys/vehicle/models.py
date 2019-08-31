@@ -8,6 +8,8 @@ class Vehicle(models.Model):
     owner = models.CharField(max_length=255)
     color = models.CharField(max_length=255)
     guard = models.ForeignKey(User, on_delete=models.CASCADE)
+    registered_at = models.DateTimeField(default=timezone.now, null=True)
+    first_entry_at = models.DateTimeField(default=timezone.now, null=True)
     status = models.BooleanField(default=True)
 
     def __str__(self):

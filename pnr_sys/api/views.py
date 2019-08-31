@@ -279,9 +279,11 @@ def list_partial(request):
 
     Log = apps.get_model('vehicle', 'Log')
     l = Log.objects.order_by('-pk').filter(datetime_in__gte=today_start, datetime_in__lte=today_end)
+    p = Log.objects.filter(datetime_in__gte=today_start, datetime_in__lte=today_end, datetime_out__isnull=True).count()
     context = {
         'logs': l,
-        'total': len(l)
+        'records': len(l),
+        'parked_in': p
     }
     return render(request, 'api/list-partial.html', context)
 
@@ -296,7 +298,7 @@ def park_inout(request):
         if v == None:
             v_type = 'n/a'
             if len(latest.plate) == 7:
-                v_type = 'car`'
+                v_type = 'car'
             if len(latest.plate) == 8:
                 v_type = 'motorcycle'
             if len(latest.plate) == 12:

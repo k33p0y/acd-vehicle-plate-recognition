@@ -122,9 +122,11 @@
                 }
                 if (is_first_load == 'yes' || !resp.same_entry) {
                     loadHtml('inout-partial/', '#action-html', resp.is_valid);
-                    setTimeout(() => {
-                        loadHtml('list-partial/', '#log-list-html', true, false); 
-                    }, 1000);
+                    if (!($('#registerModal').data('bs.modal') || {})._isShown) {
+                        setTimeout(() => {
+                            loadHtml('list-partial/', '#log-list-html', true, false); 
+                        }, 1000);
+                    }
                 }
                 
                 $('#reg-status').html(`<span class="text-${data.status.type}">${data.status.text}</span>`);
