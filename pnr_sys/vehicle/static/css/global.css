@@ -15,3 +15,7 @@ body {
     border: 2px dashed;
     margin-top: 15px;
 }
+
+.hide {
+    display: none !important;
+}

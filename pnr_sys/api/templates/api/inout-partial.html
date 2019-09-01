@@ -24,6 +24,7 @@
             if (flow == 'in') {
                 if (reason.trim().length == 0) {
                     $('#help-text').html('Reason is required');
+                    $('#reason').focus();
                     loading = false;
                     $('.btn').removeClass('hide');
                     $('.form-control').removeClass('hide');

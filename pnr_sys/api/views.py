@@ -15,6 +15,7 @@ import platform
 import sys
 from datetime import datetime, timedelta, time
 import time as ttime
+from django.core import serializers
 
 if platform.system() == 'Linux':
     pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
@@ -344,3 +345,25 @@ def manual_input(request):
         'success': True
     }
     return JsonResponse(context)
+
+def log_info(request, log_id):
+    Log = apps.get_model('vehicle', 'Log')
+    l = Log.objects.get(pk=log_id)
+    v = l.vehicle
+    context = {
+        'log': serializers.serialize('json', [l]),
+        'vehicle': serializers.serialize('json', [v]),
+    }
+    return JsonResponse(context)
+
+def update_vehicle(request, vehicle_id):
+    Vehicle = apps.get_model('vehicle', 'Vehicle')
+    v = Vehicle.objects.get(pk=vehicle_id)
+    v.owner = request.POST.get('owner', '')
+    v.color = request.POST.get('color', '')
+    # v.save()
+
+    data = request.json()
+    return JsonResponse(data)
+
+    # return JsonResponse({'success': True, 'owner': request.POST.get('owner'), 'color': request.POST.get('color')})

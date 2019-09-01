@@ -12,4 +12,6 @@ urlpatterns = [
 
     path('park-inout', views.park_inout, name='api-park-inout'),
     path('manual-input', views.manual_input, name='api-manual-input'),
+    path('log-info/<int:log_id>/', views.log_info, name='api-log-info'),
+    path('update-vehicle/<int:vehicle_id>/', views.update_vehicle, name='api-update-vehicle'),
 ]

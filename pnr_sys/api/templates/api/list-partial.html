@@ -21,7 +21,7 @@
             <td>{{ item.datetime_out | date:'h:i A' }}</td>
             <td>
                 {% if item.vehicle.owner == '' %}
-                  <a data-toggle="modal" data-target="#registerModal" class="text-success" title="Regsiter Vehicle"><i class="fa fa-plus-square" aria-hidden="true"></i></a>
+                    <a onclick="registerModal('{{ item.id }}')" class="text-success" title="Regsiter Vehicle"><i class="fa fa-plus-square" aria-hidden="true"></i></a>
                 {% endif %}
             </td>
         </tr>
@@ -73,11 +73,107 @@
                         </tr>
                     </tbody>
                 </table>
+                <div class="form-group">
+                  <label for="owner">Owner</label>
+                  <input type="text" name="owner" id="owner" class="form-control" onkeypress="registerInput(event)" placeholder="" aria-describedby="helpOwner">
+                  <small id="helpOwner" class="text-muted"></small>
+                </div>
+                <div class="form-group">
+                  <label for="color">Color</label>
+                  <input type="text" name="color" id="color" class="form-control" onkeypress="registerInput(event)" placeholder="" aria-describedby="helpColor">
+                  <small id="helpColor" class="text-muted"></small>
+                </div>
+                <div class="alert" role="alert"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save</button>
+                <div id="btn-controls">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="submitRegistration()">Save</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+{% block script %}
+<script>
+    var vehicle_id = null;
+    var token = '{{ csrf_token }}';
+
+    registerModal = (log_id) => {
+        request.open('GET', '/api/log-info/' + log_id, true);
+        console.log('token', token);
+
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                var resp = JSON.parse(this.response);
+                var log = JSON.parse(resp.log)[0].fields
+                var vehicle = JSON.parse(resp.vehicle)[0].fields
+                console.log(log, vehicle);
+
+                console.log(JSON.parse(resp.vehicle)[0].pk);
+                vehicle_id = JSON.parse(resp.vehicle)[0].pk;
+                $('#t-plate').text(vehicle.plate);
+                $('#t-type').text(vehicle.v_type);
+                $('#t-first').text(vehicle.first_entry_at);
+                $('#t-registered').text(vehicle.registered_at);
+                $('#t-guard').text(vehicle.guard);
+                $('#owner').val(vehicle.owner);
+                $('#color').val(vehicle.color);
+                $('#registerModal').modal('show');
+            } else {
+                console.error('get log error');
+            }
+        };
+        request.onerror = function() {
+            console.error('get log error');
+        };
+        request.send();
+    }
+
+    registerInput = ($e) => {
+        if ($e.keyCode == 13) {
+            submitRegistration();
+        }
+    };
+
+    submitRegistration = () => {
+        var owner = $('#owner').val();
+        var color = $('#color').val();
+        console.log(owner, color);
+        var formData = new FormData();
+        formData.append('owner', owner);
+        formData.append('color', color);
+        var controls = $('#btn-controls');
+        var alert = $('.alert');
+        
+        // request.open('GET', '/api/update-vehicle/' + vehicle_id + '?owmer=' + owner + '&color=' + color, true);
+        request.open('POST', '/api/update-vehicle/' + vehicle_id + '/', true);
+        // request.setRequestHeader("X-CSRFToken", token);
+        request.setRequestHeader("X-CSRFToken": token, "Content-Type": "application/x-www-form-urlencoded");
+        controls.addClass('hide');
+        alert.addClass('alert-info').text('loading...');
+
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                alert.removeClass('alert-info').addClass('alert-success').text('Successfully Updated');
+                // setTimeout(() => {
+                //     $('#registerModal').modal('hide');
+                //     setTimeout(() => {
+                //         loadHtml('list-partial/', '#log-list-html', true, false);
+                //     }, 1000);
+                // }, 3000);
+                controls.removeClass('hide');
+            } else {
+                alert.removeClass('alert-info').addClass('alert-danger').text('Updated Failed');
+                controls.removeClass('hide');
+            }
+        };
+        request.onerror = function() {
+            alert.removeClass('alert-info').addClass('alert-danger').text('Updated Failed');
+            controls.removeClass('hide');
+        };
+        request.send(formData);
+    };
+</script>
+{% endblock script %}
