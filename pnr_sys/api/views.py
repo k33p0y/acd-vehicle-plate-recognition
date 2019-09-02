@@ -356,9 +356,15 @@ def log_info(request, log_id):
     Log = apps.get_model('vehicle', 'Log')
     l = Log.objects.get(pk=log_id)
     v = l.vehicle
+    g = l.guard
+    e = None
+    if l.edited_by != None:
+        e = serializers.serialize('json', [l.edited_by])
     context = {
         'log': serializers.serialize('json', [l]),
         'vehicle': serializers.serialize('json', [v]),
+        'guard_by': serializers.serialize('json', [g]),
+        'edited_by': e,
     }
     return JsonResponse(context)
 

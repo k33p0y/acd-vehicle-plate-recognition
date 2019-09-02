@@ -129,6 +129,16 @@
                         <td id="et-edited_by"></td>
                     </tr>
                 </table>
+                <div class="form-group">
+                  <label for="park_in">Park-In</label>
+                  <input type="time" class="form-control" name="park_in" id="park_in" aria-describedby="parkInHelpId" >
+                  <small id="parkInHelpId" class="form-text text-muted"></small>
+                </div>
+                <div class="form-group">
+                  <label for="park_out">Park-Out</label>
+                  <input type="time" class="form-control" name="park_out" id="park_out" aria-describedby="parkOutHelpId" >
+                  <small id="parkOutHelpId" class="form-text text-muted"></small>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -145,7 +155,6 @@
 
     registerModal = (log_id) => {
         request.open('GET', '/api/log-info/' + log_id, true);
-        console.log('token', token);
 
         request.onload = function() {
             if (this.status >= 200 && this.status < 400) {
@@ -223,8 +232,31 @@
     };
 
     editLogModal = (log_id) => {
-        console.log(log_id);
-        $('#editLogModal').modal('show');
+        request.open('GET', '/api/log-info/' + log_id, true);
+
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                var resp = JSON.parse(this.response);
+                var log = JSON.parse(resp.log)[0].fields
+                var vehicle = JSON.parse(resp.vehicle)[0].fields
+                var guard_by = JSON.parse(resp.guard_by)[0].fields
+                var edited_by = resp.edited_by ? JSON.parse(resp.edited_by)[0].fields : null;
+                console.log(log, vehicle);
+
+                $('#et-plate').text(vehicle.plate);
+                $('#et-type').text(vehicle.v_type);
+                $('#et-color').text(vehicle.color);
+                $('#et-log_by').text(guard_by.username);
+                $('#et-edited_by').text(edited_by ? edited_by.username : '');
+                $('#editLogModal').modal('show');
+            } else {
+                console.error('get log error');
+            }
+        };
+        request.onerror = function() {
+            console.error('get log error');
+        };
+        request.send();
     };
 </script>
 {% endblock script %}
