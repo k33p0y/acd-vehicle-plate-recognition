@@ -120,6 +120,10 @@
                 if (resp.registered) {
                     data.status.type = 'success';
                     data.status.text = 'Registered';
+                    data.owner.type = 'default';
+                    data.owner.text = resp.owner;
+                    data.color.type = 'default';
+                    data.color.text = resp.color;
                 }
                 if (is_first_load == 'yes' || !resp.same_entry) {
                     loadHtml('inout-partial/', '#action-html', resp.is_valid);

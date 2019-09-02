@@ -1,7 +1,6 @@
 ((w, $) =>
 {
     // 'use strict';
-    w.xhr = new XMLHttpReques();
 
     w.timer = () =>
     {
@@ -13,8 +12,6 @@
             $('#index-date').html(date);
         }, 1000);
     };
-
-    w.ajax = () => { };
 
     w.timer();
 })(window, jQuery);

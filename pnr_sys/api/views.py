@@ -55,6 +55,8 @@ def check_captured(request):
     status = False
     registered = False
     v_type = 'n/a'
+    owner = 'n/a'
+    color = 'n/a'
     same_entry = False
     is_valid = True
 
@@ -85,6 +87,8 @@ def check_captured(request):
         v = Vehicle.objects.filter(plate=plate).exclude(owner__exact='').first()
         if v != None:
             registered = True
+            owner = v.owner
+            color = v.color
 
     if len(plate) == 7:
         v_type = 'car'
@@ -105,6 +109,8 @@ def check_captured(request):
         'status': status,
         'registered': registered,
         'v_type': v_type,
+        'owner': owner,
+        'color': color,
         'same_entry': same_entry,
         'is_valid': is_valid,
     }
@@ -361,9 +367,6 @@ def update_vehicle(request, vehicle_id):
     v = Vehicle.objects.get(pk=vehicle_id)
     v.owner = request.POST.get('owner', '')
     v.color = request.POST.get('color', '')
-    # v.save()
+    v.save()
 
-    data = request.json()
-    return JsonResponse(data)
-
-    # return JsonResponse({'success': True, 'owner': request.POST.get('owner'), 'color': request.POST.get('color')})
+    return JsonResponse({'success': True, 'owner': request.POST.get('owner'), 'color': request.POST.get('color')})

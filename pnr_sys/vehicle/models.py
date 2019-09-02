@@ -29,6 +29,8 @@ class Log(models.Model):
     datetime_out = models.DateTimeField(default=None, null=True)
     reason = models.TextField(default='')
     status = models.BooleanField(default=True)
+    edited_by = models.ForeignKey(User, related_name='edited_by', on_delete=models.CASCADE, default=None, null=True)
+    edited_at = models.DateTimeField(default=None, null=True)
 
     def __str__(self):
         return self.vehicle.plate
