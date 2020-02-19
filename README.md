@@ -18,13 +18,19 @@ python3 -V
 ```()
 pip install virtualenv
 
+4.1 Create virtualenv
+virtualenv -p python3 localenv
+
+4.2 Activate virtualenv
 in Windows:
 source localenv/Scripts/activate
 in Linux and OSX:
 source localenv/bin/activate
 ```
 
-5. Intall Django
+5. Intall requirements
+pip install -r requirements.txt
+
 6. Check Django version
 
 ```()
