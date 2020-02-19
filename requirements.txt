@@ -4,7 +4,7 @@ django-keyboard-shortcuts==0.0.7
 django-mathfilters==0.4.0
 numpy==1.17.1
 opencv-contrib-python-headless==4.1.1.26
-Pillow==6.1.0
+Pillow==6.2.0
 pytesseract==0.3.0
 pytz==2019.2
 schedule==0.6.0
