@@ -1,0 +1,112 @@
+{% extends 'vehicle/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-3 d-print-none">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Filter List</h4>
+            </div>
+            <div class="list-group">
+                <a href="{% url 'vehicle-history' %}?filter=today" class="list-group-item list-group-item-action {% if filter == 'today' %}active{% elif filter == '' %}active{% endif %}">Today</a>
+                <a href="{% url 'vehicle-history' %}?filter=week" class="list-group-item list-group-item-action {% if filter == 'week' %}active{% endif %}"">This Week</a>
+                <a href="{% url 'vehicle-history' %}?filter=month" class="list-group-item list-group-item-action {% if filter == 'month' %}active{% endif %}"">This Month</a>
+                <a href="{% url 'vehicle-history' %}?filter=custom" class="list-group-item list-group-item-action {% if filter == 'custom' %}active{% endif %}"">Custom</a>
+            </div>
+            {% if has_custom %}
+            <div class="p-4">
+                <div class="form-group">
+                  <label for="">Date Range </label>
+                  <input type="text" class="form-control" name="dates" id="dates" aria-describedby="datesHelpId" value="{{date_from }} - {{ date_to }}">
+                  <small id="datesHelpId" class="form-text text-muted">Select Date Range</small>
+                </div>
+                <button class="btn btn-primary btn-block btn-sm" onclick="filter()">Filter</button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-auto">
+        <div class="card col-print-12 d-print-block">
+            <div class="card-header">
+                <h1 class="d-none d-print-block">ACD-VPR-SYS Report</h1>
+                Date Range: <b>{{ day_start }}</b> &mdash; <b>{{ day_end }}</b>
+                <button type="button" class="btn btn-sm btn-default float-right d-print-none" onclick="window.print()">
+                    <i class="fa fa-print" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                       <tr>
+            <th>Plate</th>
+            <th>Vehicle</th>
+            <th>color</th>
+            <th>Date | time In</th>
+            <th>Date | time Out</th>
+            <th>Purpose</th>
+            <th>Log By</th>
+        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in logs %}
+                        <tr>
+                   <td>{{ item.vehicle.plate }}</td>
+            <td>{{item.vehicle.v_type}}</td><td>{{item.vehicle.color}}</td>
+            <td>{{ item.datetime_in | date:'m-d-Y' }},{{item.datetime_in | date:'h:i A' }}</td>
+               <td>{{ item.datetime_out | date:'m-d-Y' }},{{item.datetime_out | date:'h:i A' }}</td>
+            <td>{{item.reason}}</td>
+            <td>{{item.guard}}</td>
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                               <tr>
+            <th>Plate</th>
+            <th>Vehicle</th>
+            <th>color</th>
+            <th>Date | time In</th>
+            <th>Date | time Out</th>
+            <th>Purpose</th>
+            <th>Log By</th>
+        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="card-footer d-none d-print-block">
+                Prepared by: <b>{% if user.name %}{{ user.name }}{% else %}{{ user.username }}{% endif %}</b> at {{ today }}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block script %}
+<script>
+    $('input[name="dates"]').daterangepicker();
+
+    filter = () => {
+        var dates = $('input[name="dates"]');
+        var range = dates.val();
+        console.log(range);
+        var reg = /([\d]+\/[\d]+\/[\d]+)/gm;
+        var match;
+        var range_dates = [];
+
+        do {
+            match = reg.exec(range);
+            if (match) {
+                range_dates.push(match[0]);
+                console.log(match[0]);
+            }
+        } while (match);
+        console.log(range_dates);
+
+        window.location.replace('/history/?filter=custom&date_from=' + range_dates[0] + '&date_to=' + range_dates[1]);
+    };
+</script>
+{% endblock script %}

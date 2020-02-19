@@ -2,41 +2,35 @@
 <table style="margin-left: 15px;" class="table table-light table-hover table-striped">
     <thead class="thead-light">
         <tr>
-            <th colspan="5">As of Today: <span class="text-info">{{ records }}</span> recorded | <span class="text-success">{{ parked_in }}</span> still parked-in </th>
+            <th colspan="7"><h4>As of Today: <span class="text-info">{{ records }}</span> recorded | <span class="text-success">{{ parked_in }}
+            </span> still parked-in </h4></th>
         </tr>
         <tr>
-            <th>#</th>
             <th>Plate</th>
-            <th>Park-In</th>
-            <th>Park-Out</th>
+            <th>Vehicle</th>
+            <th>In</th>
+            <th>Out</th>
+            <th>Purpose</th>
             <th>Action</th>
         </tr>
     </thead>
     <tbody>
         {% for item in logs %}
         <tr>
-            <td>{{ records | sub:forloop.counter0 }}</td>
             <td>{{ item.vehicle.plate }}</td>
+            <td>{{ item.vehicle.v_type}}</td>
             <td>{{ item.datetime_in | date:'h:i A' }}</td>
             <td>{{ item.datetime_out | date:'h:i A' }}</td>
+            <td>{{ item.reason }}</td>
             <td>
                 {% if item.vehicle.owner == '' %}
-                    <a onclick="registerModal('{{ item.id }}')" class="text-success" title="Regsiter Vehicle"><i class="fa fa-plus-square" aria-hidden="true"></i></a>
+                    <a onclick="registerModal('{{ item.id }}')" class="text-success" title="Register Vehicle"><i class="fa fa-plus-square" aria-hidden="true"></i></a>
                 {% endif %}
                 <a onclick="editLogModal('{{ item.id }}')" class="text-info" title="Edit Log"><i class="fa fa-pencil-square" aria-hidden="true"></i></a>
             </td>
         </tr>
         {% endfor %}
     </tbody>
-    <tfoot>
-        <tr>
-            <th>#</th>
-            <th>Plate</th>
-            <th>Park-In</th>
-            <th>Park-Out</th>
-            <th>Action</th>
-        </tr>
-    </tfoot>
 </table>
 
 <!-- Register Modal -->
@@ -44,7 +38,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Regsiter Vehicle</h5>
+                <h5 class="modal-title">Register Vehicle</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -53,7 +47,7 @@
                 <table class="table table-bordered">
                     <tbody>
                         <tr>
-                            <td scope="row">Plate #</td>
+                            <td scope="row">Plate No.</td>
                             <td id="t-plate"></td>
                         </tr>
                         <tr>
@@ -75,12 +69,12 @@
                     </tbody>
                 </table>
                 <div class="form-group">
-                  <label for="owner">Owner</label>
+                  <label for="owner">Owner/Driver</label>
                   <input type="text" name="owner" id="owner" class="form-control" onkeypress="registerInput(event)" placeholder="" aria-describedby="helpOwner">
                   <small id="helpOwner" class="text-danger"></small>
                 </div>
                 <div class="form-group">
-                  <label for="color">Color</label>
+                  <label for="color">Color Orientation</label>
                   <input type="text" name="color" id="color" class="form-control" onkeypress="registerInput(event)" placeholder="" aria-describedby="helpColor">
                   <small id="helpColor" class="text-danger"></small>
                 </div>
@@ -203,7 +197,7 @@
             $('#helpColor').text('Color is required');
             return false;
         }
-        
+
         request.open('POST', '/api/update-vehicle/' + vehicle_id + '/', true);
         request.setRequestHeader("X-CSRFToken", token);
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");

@@ -3,12 +3,21 @@
     <button type="button" class="btn btn-danger btn-block" onclick="parkInOut()">Park-Out Vehicle</button>
 {% else %}
     <input type="hidden" id="flow" value="in">
-    <div class="form-group">
-      <label for="reason">Reason</label>
-      <input type="text" name="reason" id="reason" class="form-control" value="" onkeypress="inputReason(event)" autofocus>
+    <div class="form-group"><br>
+      <label for="reason">Purpose</label>
+        <input type ="text" name="reason" id="reason" class="form-control" placeholder="Employee" value="" onkeypress="inputReason(event)" list = "Select" />
+        <datalist id="Select">
+            <option value = "Employee">
+            <option value = "Staff">
+            <option value = "Visiting a student">
+            <option value = "Visiting an employee">
+            <option value = "Pick up a student">
+            <option value = "Administration">
+            <option value = "Enrollment">
+        </datalist>
       <p class="form-text text-danger" id="help-text"></p>
     </div>
-    <button type="button" class="btn btn-success btn-block" onclick="parkInOut()">Park-In Vehicle</button>
+    <button type="button" class="btn btn-success btn-block" onclick="parkInOut()">Park-In</button>
 {% endif %}
 
 {% block script %}

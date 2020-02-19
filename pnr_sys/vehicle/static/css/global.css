@@ -1,19 +1,19 @@
 body {
-    background: url('/static/images/bg-blue.jpg') no-repeat center center fixed;
+    background: url('/static/images/213.jpg') no-repeat center center fixed;
     background-size: cover;
 }
 
 .dummy-video {
-    background: #616777;
-    height: 325px;
-    margin: 15px 0 0 15px;
+    background: #616776;
+    height: 324px;
+    margin: 14px 0 0 15px;
 }
 
 .plate {
-    padding: 15px 30px;
-    font-size: 3em;
-    border: 2px dashed;
-    margin-top: 15px;
+    padding: 14px 30px;
+    font-size: 2em;
+    border: 1px dashed;
+    margin-top: 14px;
 }
 
 .hide {

@@ -1,0 +1,76 @@
+{% extends 'vehicle/base.html' %}
+{% load static %}
+{% block content %}
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<!--<form method="GET"> {% csrf_token %}-->
+<!--FROM : <input type="date" name="f_date"> <br> <br>-->
+<!--TO : <input type="date" name="t_date"> <br> <br> <hr>-->
+<!--<input type="submit"> <br> <br>-->
+<!--</form>-->
+<font size = 5>
+    <tr>Total Record: <span class="text-success">{{ records }}</span><span class="text-success">{{ vehicle }}</span></tr>
+    <tr><img width ="50"></tr>
+    <tr>Total Vehicle still parked-in : <font size="5"><span class="text-success">{{ parked_in }}</span></font></font></tr>
+</table>
+              <br> <br>
+<table>
+    <tr><h5>Search :</h5><input class="form-control" id="myInput" type="text" placeholder="Date/Plate/Vehicle/Owner/Color/Purpose/Logged"></tr>
+</table>
+  <br>
+<table class="table table-light table-hover table-striped">
+    <thead class="thead-light">
+
+        <tr>
+            <th>Plate</th>
+            <th>Vehicle</th>
+            <th>color</th>
+            <th>Date | time In</th>
+            <th>Date | time Out</th>
+            <th>Purpose</th>
+            <th>Log By</th>
+        </tr>
+    </thead>
+    <tbody id="myTable">
+{% for item in logs %}
+        <tr>
+            <td>{{ item.vehicle.plate }}</td>
+            <td>{{item.vehicle.v_type}}</td>
+             <td>{{item.vehicle.color}}</td>
+              <td>{{ item.datetime_in }}</td>
+               <td>{{ item.datetime_out}}</td>
+            <td>{{ item.reason }}</td>
+            <td>{{item.guard}}</td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+
+
+</div>
+
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+
+
+
+
+{% endblock content %}
+
+
+
+

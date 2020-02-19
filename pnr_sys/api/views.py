@@ -1,3 +1,4 @@
+
 from django.shortcuts import render
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseServerError
 from django.views.decorators import gzip
@@ -16,6 +17,7 @@ import sys
 from datetime import datetime, timedelta, time
 import time as ttime
 from django.core import serializers
+# from dateutil import parse
 
 if platform.system() == 'Linux':
     pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
@@ -26,6 +28,7 @@ if platform.system() == 'OS X' or platform.system() == 'Darwin':
 
 num_frames = 0
 frame = None
+
 
 def check_camera(request):
     cam = cv2.VideoCapture(0)
@@ -47,6 +50,7 @@ def check_camera(request):
     cv2.destroyAllWindows()
 
     return JsonResponse({'status': True, 'time_frame': i})
+
 
 def check_captured(request):
     print(platform.system())
@@ -80,7 +84,7 @@ def check_captured(request):
     if len(all_l) == 1:
         l = Latest(plate=plate, fps=fps, status=status)
         l.save()
-    
+
     Vehicle = apps.get_model('vehicle', 'Vehicle')
     all_v = Vehicle.objects.all()
     if len(all_v) > 0:
@@ -118,16 +122,19 @@ def check_captured(request):
 
     return JsonResponse(context)
 
+
 @gzip.gzip_page
 def live_feed(request):
     activate = request.GET.get('activate', False)
     print(activate)
-    
+
     try:
-        return StreamingHttpResponse(gen(VideoCamera(), activate),content_type="multipart/x-mixed-replace;boundary=frame")
+        return StreamingHttpResponse(gen(VideoCamera(), activate),
+                                     content_type="multipart/x-mixed-replace;boundary=frame")
     except:
         e = sys.exc_info()
         print("aborted", e)
+
 
 def gen(camera, activate):
     global num_frames
@@ -144,12 +151,14 @@ def gen(camera, activate):
             start_time = datetime.now()
             end_time = start_time + timedelta(seconds=1)
 
-        yield(b'--frame\r\n'
-        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
 
 class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0)
+
     def __del__(self):
         self.video.release()
 
@@ -159,26 +168,27 @@ class VideoCamera(object):
         frame = image
         if activate and activate == 'true':
             gray = extract_text()
-        (ret, jpeg) = cv2.imencode('.jpg',image)
+        (ret, jpeg) = cv2.imencode('.jpg', image)
         return jpeg.tobytes()
+
 
 def extract_text():
     global frame
     gray = frame
     # RESIZING
-    gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
-    # gray = cv2.resize(gray, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+    # gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+    gray = cv2.resize(gray, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
     # gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
     # COLOR
-    gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
+    # gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
     # TRESHHOLD
-    gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    # gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
     # gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     # gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2)
     # BLUR
-    gray = cv2.medianBlur(gray, 3)
+    # gray = cv2.medianBlur(gray, 3)
     # gray = cv2.bilateralFilter(gray,9,75,75)
-    
+
     ptext = pytesseract.image_to_string(Image.fromarray(gray))
     print(ptext)
     r1 = re.findall(r'([A-Z]+\s+[\d]+)', ptext)
@@ -208,6 +218,7 @@ def extract_text():
 
     return gray
 
+
 @gzip.gzip_page
 def live_feed_old(request):
     class VideoCameraOld():
@@ -231,17 +242,15 @@ def live_feed_old(request):
             while True:
                 (self.grabbed, self.frame) = self.video.read()
 
-
     # Needed To Initialize Camera
     cam = VideoCameraOld()
-
 
     def genold(camera):
         while True:
             frame = camera.get_frame()
-            yield(b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-                
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
     try:
         return StreamingHttpResponse(genold(VideoCameraOld()), content_type="multipart/x-mixed-replace;boundary=frame")
     except:  # This is bad! replace it with proper handling
@@ -257,10 +266,10 @@ def inout_partial(request):
         plate = latest.plate
     else:
         plate = ''
-    
+
     registered = False
     logged = False
-    
+
     Vehicle = apps.get_model('vehicle', 'Vehicle')
     v = Vehicle.objects.filter(plate=plate).first()
     if v != None:
@@ -268,7 +277,7 @@ def inout_partial(request):
         Log = apps.get_model('vehicle', 'Log')
         l = Log.objects.filter(vehicle=v, datetime_out__isnull=True).last()
         if l != None:
-            logged = True    
+            logged = True
 
     context = {
         'plate': plate,
@@ -276,6 +285,7 @@ def inout_partial(request):
         'logged': logged,
     }
     return render(request, 'api/inout-partial.html', context)
+
 
 @gzip.gzip_page
 def list_partial(request):
@@ -294,12 +304,13 @@ def list_partial(request):
     }
     return render(request, 'api/list-partial.html', context)
 
+
 def park_inout(request):
     success = False
     flow = ''
 
     latest = Latest.objects.first()
-    if latest != None:
+    if latest != None and len(latest.plate) > 0:
         Vehicle = apps.get_model('vehicle', 'Vehicle')
         v = Vehicle.objects.filter(plate=latest.plate).first()
         if v == None:
@@ -334,6 +345,7 @@ def park_inout(request):
     }
     return JsonResponse(context)
 
+
 def manual_input(request):
     plate = request.GET.get('plate', '')
     plate = plate.replace(' ', '-')
@@ -352,6 +364,7 @@ def manual_input(request):
     }
     return JsonResponse(context)
 
+
 def log_info(request, log_id):
     Log = apps.get_model('vehicle', 'Log')
     l = Log.objects.get(pk=log_id)
@@ -368,6 +381,7 @@ def log_info(request, log_id):
     }
     return JsonResponse(context)
 
+
 def update_vehicle(request, vehicle_id):
     Vehicle = apps.get_model('vehicle', 'Vehicle')
     v = Vehicle.objects.get(pk=vehicle_id)
@@ -376,3 +390,28 @@ def update_vehicle(request, vehicle_id):
     v.save()
 
     return JsonResponse({'success': True, 'owner': request.POST.get('owner'), 'color': request.POST.get('color')})
+
+
+def update_log(request, log_id):
+    park_in = request.POST.get('park_in')
+    park_out = request.POST.get('park_out')
+
+    Log = apps.get_model('vehicle', 'Log')
+    l = Log.objects.get(pk=log_id)
+
+    new_park_in = re.sub('([\d]+:[\d]+)', park_in, str(l.datetime_in))
+    new_park_in = re.sub('(\+[\d]+:[\d]+)', '', new_park_in)
+    new_park_in = parser.parse(new_park_in)
+    l.datetime_in = new_park_in
+
+    if park_out != '':
+        new_park_out = re.sub('([\d]+:[\d]+)', park_out, str(l.datetime_out))
+        new_park_out = re.sub('(\+[\d]+:[\d]+)', '', new_park_out)
+        new_park_out = parser.parse(new_park_out)
+        l.datetime_out = new_park_out
+
+    l.edited_by = request.user
+    l.edited_at = datetime.now()
+    l.save()
+
+    return JsonResponse({'success': True})

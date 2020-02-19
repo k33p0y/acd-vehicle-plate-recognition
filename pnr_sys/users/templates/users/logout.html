@@ -3,14 +3,13 @@
 {% block content %}
     <div class="row justify-content-center">
         <div class="col-6">
-            <div class="card">
-                <div class="card">
+            <div class="card bg-dark mb-3">
+                <div class="card bg-dark mb-3">
                     <div class="card-header">
-                            <h2>You have been logged out</h2>
+                        <center><h4><font color = white>You successfully logged out from the system</font></h4></center>
                     </div>
                     <div class="card-body">
-                        <a class="btn btn-primary btn-block" href="{% url 'login' %}">Log In Again</a>
-                        <a class="btn btn-link btn-block" href="{% url 'vehicle-landing' %}">Go Home</a>
+                    <a class="btn btn-primary btn-block" href="{% url 'login' %}">Log Back</a>
                     </div>
                 </div>
             </div>

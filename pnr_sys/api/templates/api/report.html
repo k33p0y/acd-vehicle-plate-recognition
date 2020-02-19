@@ -1,0 +1,265 @@
+{% extends 'vehicle/base.html' %}
+{% load static %}
+{% block content %}
+
+
+{% load mathfilters %}
+<table style="margin-left: 15px;" class="table table-light table-hover table-striped">
+    <thead class="thead-light">
+        <tr>
+            <th colspan="7"><h3>As of Today: <span class="text-info">{{ records }}</span> recorded | <span class="text-success">{{ parked_in }}
+            </span><h3> still parked-in </h3></th>
+        </tr>
+        <tr>
+            <th>Plate</th>
+            <th>Vehicle</th>
+            <th>In</th>
+            <th>Out</th>
+            <th>Purpose</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+
+      {% for item in logs %}
+        <tr>
+            <td>{{ item.vehicle.plate }}</td>
+            <td>{{ item.vehicle.v type }}</td>
+            <td>{{ item.datetime_in | date:'h:i A' }}</td>
+            <td>{{ item.datetime_out | date:'h:i A' }}</td>
+            <td>{{ item.reason }}</td>
+            <td>
+                {% if item.vehicle.owner == '' %}
+                    <a onclick="registerModal('{{ item.id }}')" class="text-success" title="Register Vehicle"><i class="fa fa-plus-square" aria-hidden="true"></i></a>
+                {% endif %}
+                <a onclick="editLogModal('{{ item.id }}')" class="text-info" title="Edit Log"><i class="fa fa-pencil-square" aria-hidden="true"></i></a>
+            </td>
+        </tr>
+        {% endfor %}
+</ul>
+    </tbody>
+</table>
+
+<!-- Register Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Register Vehicle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td scope="row">Plate No.</td>
+                            <td id="t-plate"></td>
+                        </tr>
+                        <tr>
+                            <td scope="row">Type</td>
+                            <td id="t-type"></td>
+                        </tr>
+                        <tr>
+                            <td scope="row">First Entry At</td>
+                            <td id="t-first"></td>
+                        </tr>
+                        <tr>
+                            <td scope="row">Registered At</td>
+                            <td id="t-registered"></td>
+                        </tr>
+                        <tr>
+                            <td scope="row">Updated By</td>
+                            <td id="t-guard"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="form-group">
+                  <label for="owner">Owner/Driver</label>
+                  <input type="text" name="owner" id="owner" class="form-control" onkeypress="registerInput(event)" placeholder="" aria-describedby="helpOwner">
+                  <small id="helpOwner" class="text-danger"></small>
+                </div>
+                <div class="form-group">
+                  <label for="color">Color Orientation</label>
+                  <input type="text" name="color" id="color" class="form-control" onkeypress="registerInput(event)" placeholder="" aria-describedby="helpColor">
+                  <small id="helpColor" class="text-danger"></small>
+                </div>
+                <div class="alert" role="alert"></div>
+            </div>
+            <div class="modal-footer">
+                <div id="btn-controls">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="submitRegistration()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="editLogModal" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Log</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <tr>
+                        <td>Plate #</td>
+                        <td id="et-plate"></td>
+                    </tr>
+                    <tr>
+                        <td>Type</td>
+                        <td id="et-type"></td>
+                    </tr>
+                    <tr>
+                        <td>Color</td>
+                        <td id="et-color"></td>
+                    </tr>
+                    <tr>
+                        <td>Log By</td>
+                        <td id="et-log_by"></td>
+                    </tr>
+                    <tr>
+                        <td>Edited By</td>
+                        <td id="et-edited_by"></td>
+                    </tr>
+                </table>
+                <div class="form-group">
+                  <label for="park_in">Park-In</label>
+                  <input type="time" class="form-control" name="park_in" id="park_in" aria-describedby="parkInHelpId" >
+                  <small id="parkInHelpId" class="form-text text-muted"></small>
+                </div>
+                <div class="form-group">
+                  <label for="park_out">Park-Out</label>
+                  <input type="time" class="form-control" name="park_out" id="park_out" aria-describedby="parkOutHelpId" >
+                  <small id="parkOutHelpId" class="form-text text-muted"></small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block script %}
+<script>
+    var vehicle_id = null;
+    var token = '{{ csrf_token }}';
+
+    registerModal = (log_id) => {
+        request.open('GET', '/api/log-info/' + log_id, true);
+
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                var resp = JSON.parse(this.response);
+                var log = JSON.parse(resp.log)[0].fields
+                var vehicle = JSON.parse(resp.vehicle)[0].fields
+                console.log(log, vehicle);
+
+                console.log(JSON.parse(resp.vehicle)[0].pk);
+                vehicle_id = JSON.parse(resp.vehicle)[0].pk;
+                $('#t-plate').text(vehicle.plate);
+                $('#t-type').text(vehicle.v_type);
+                $('#t-first').text(vehicle.first_entry_at);
+                $('#t-registered').text(vehicle.registered_at);
+                $('#t-guard').text(vehicle.guard);
+                $('#owner').val(vehicle.owner);
+                $('#color').val(vehicle.color);
+                $('#registerModal').modal('show');
+            } else {
+                console.error('get log error');
+            }
+        };
+        request.onerror = function() {
+            console.error('get log error');
+        };
+        request.send();
+    }
+
+    registerInput = ($e) => {
+        if ($e.keyCode == 13) {
+            submitRegistration();
+        }
+    };
+
+    submitRegistration = () => {
+        var owner = $('#owner').val();
+        var color = $('#color').val();
+        var controls = $('#btn-controls');
+        var alert = $('.alert');
+
+        if (owner.trim().length == 0) {
+            $('#helpOwner').text('Owner is required');
+            return false;
+        }
+        if (color.trim().length == 0) {
+            $('#helpColor').text('Color is required');
+            return false;
+        }
+
+        request.open('POST', '/api/update-vehicle/' + vehicle_id + '/', true);
+        request.setRequestHeader("X-CSRFToken", token);
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        controls.addClass('hide');
+        alert.addClass('alert-info').text('loading...');
+
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                alert.removeClass('alert-info').addClass('alert-success').text('Successfully Updated');
+                setTimeout(() => {
+                    $('#registerModal').modal('hide');
+                    setTimeout(() => {
+                        loadHtml('list-partial/', '#log-list-html', true, false);
+                    }, 1000);
+                }, 3000);
+            } else {
+                alert.removeClass('alert-info').addClass('alert-danger').text('Updated Failed');
+                controls.removeClass('hide');
+            }
+        };
+        request.onerror = function() {
+            alert.removeClass('alert-info').addClass('alert-danger').text('Updated Failed');
+            controls.removeClass('hide');
+        };
+        request.send(`owner=${owner}&color=${color}`);
+    };
+
+    editLogModal = (log_id) => {
+        request.open('GET', '/api/log-info/' + log_id, true);
+
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                var resp = JSON.parse(this.response);
+                var log = JSON.parse(resp.log)[0].fields
+                var vehicle = JSON.parse(resp.vehicle)[0].fields
+                var guard_by = JSON.parse(resp.guard_by)[0].fields
+                var edited_by = resp.edited_by ? JSON.parse(resp.edited_by)[0].fields : null;
+                console.log(log, vehicle);
+
+                $('#et-plate').text(vehicle.plate);
+                $('#et-type').text(vehicle.v_type);
+                $('#et-color').text(vehicle.color);
+                $('#et-log_by').text(guard_by.username);
+                $('#et-edited_by').text(edited_by ? edited_by.username : '');
+                $('#editLogModal').modal('show');
+            } else {
+                console.error('get log error');
+            }
+        };
+        request.onerror = function() {
+            console.error('get log error');
+        };
+        request.send();
+    };
+</script>
+{% endblock script %}
+
+{% endblock content %}

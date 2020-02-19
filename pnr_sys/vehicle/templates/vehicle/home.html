@@ -2,25 +2,34 @@
 {% load static %}
 {% block content %}
     <input type="hidden" id="is_first_load" value="yes">
-    <div class="card">
+    <div class="card ">
         <div class="card-header">
-            <h1 class="text-center">ACD Vehicle Plate Recognition System <small class="text-muted" style="font-size: small;">System: {{ system }}</small></h1>
+
+                <table>
+                    <th>
+<td width = 100></td>
+                    <td><img src="{% static 'images/cars2.png' %}" alt="Logo" width = 100 height = 100></td>
+<td width = 30></td>
+                    <center><td><h1>ACD Vehicle Plate Recognition System</h1></td></center>
+
+                    </th>
+                </table>
         </div>
         <div class="row">
             <div class="col-6 p-3">
                 <div class="dummy-video">
-                    <!-- <img src="/api/live-feed?activate=true" alt="" width="100%" height="100%"> -->
+                    <img src="/api/live-feed?activate=true" alt="" width="100%" height="100%">
                 </div>
                 <div style="padding: 0 15px 0 0; max-height: 500px; overflow: auto;" id="log-list-html"></div>
             </div>
             <div class="col-6 p-4">
                 <h4>
-                    Status: <span id="camera-status"></span>
+                    Camera Status: <span id="camera-status"></span>
                 </h4>
-                <h2>Time: <span id="index-time"></span></h2>
-                <h2>Date: <span id="index-date"></span></h2>
                 <hr>
-                <button class="btn btn-block btn-outline-success" onclick="openManualInput()">Manual Input</button>
+                <h2><span id="index-time"></span> | <span id="index-date"></span></h2>
+                <hr>
+                <button type="button" class="btn btn-success btn-block" onclick="openManualInput()">Input Plate Number</button>
                 <div id="plate-number" class="plate text-center">--- ---</div>
                 <table class="table table-light table-bordered">
                     <tbody>
@@ -37,13 +46,13 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Registerd Owner</td>
+                            <td>Registered Owner</td>
                             <td>
                                 <div id="reg-owner"></div>
                             </td>
                         </tr>
                         <tr>
-                            <td>Registerd Color</td>
+                            <td>Registered Color</td>
                             <td>
                                 <div id="reg-color"></div>
                             </td>
@@ -54,7 +63,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Modal -->
     <div class="modal fade" id="manualInputModal" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -62,17 +71,20 @@
                 <div class="modal-header">
                     <h5 class="modal-title">Manual Input</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="plate_number">Plate Number</label>
-                        <input type="text" class="form-control text-uppercase" name="plate_number" id="plate_number" onkeypress="manualInputKeyPress(event)" aria-describedby="helpId" placeholder="TST-123" minlength="7" maxlength="16" autofocus>
+                        <input type="text" class="form-control text-uppercase"
+                               name="plate_number" id="plate_number" onkeypress="manualInputKeyPress(event)"
+                               aria-describedby="helpId" placeholder="TST-123" minlength="7" maxlength="16" autofocus>
                         <small id="helpId" class="form-text text-muted">
-                            Input plate number for manual search or registration of vehicles. <br> 
+                             Manually search or register the vehicle plate number.
                             (use SPACE or DASH as separator) <br>
-                            Characters should be from 7-16 length.
+                            <font color = "Red">*Characters should be from 7-16 length.</font>
                         </small>
                     </div>
                 </div>
@@ -81,6 +93,7 @@
                     <button type="button" class="btn btn-primary" onclick="manualInput()">Confirm</button>
                 </div>
             </div>
+
         </div>
     </div>
 {% endblock content %}
@@ -225,3 +238,17 @@
     }
 </script>
 {% endblock script %}
+Status: Running... 4 fps
+Time: 11:43:30 PM
+Date: Tue Feb 04 2020
+ABD-235
+Status
+Registered
+Vehicle Type
+CAR
+Registered Owner
+Kebin
+Registered Color
+red
+Reason
+Employ
