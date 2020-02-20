@@ -69,7 +69,7 @@ $(function (){
                     data: "datetime_in",
                     render: function(data, type, row, meta){
                         if(type === 'display'){
-                            data = moment(row.datetime_in).format('MM-DD-YYYY HH:mm');
+                            if (row.datetime_in) data = moment(row.datetime_in).format('MMM DD, YYYY h:mm a');
                         }
                         return data;
                     }
@@ -78,7 +78,7 @@ $(function (){
                     data: "datetime_out",
                     render: function(data, type, row, meta){
                         if(type === 'display'){
-                            data = moment(row.datetime_out).format('MM-DD-YYYY HH:mm');
+                            if (row.datetime_out) data = moment(row.datetime_out).format('MMM DD, YYYY h:mm a');
                         }
                         return data;
                     }
@@ -87,15 +87,7 @@ $(function (){
                     data: "reason",
                 },
                 { // // Logged by
-                    data: "edited_by__last_name",
-                    render: function(data, type, row, meta){
-                        if(type === 'display'){
-                            data = '';
-                            if (row.edited_by__last_name) data += `${row.edited_by__last_name}, `
-                            if (row.edited_by__first_name) data += `${row.edited_by__first_name}`
-                        }
-                        return data;
-                    }
+                    data: "guard__username",
                 }, 
             ],
             columnDefs: [
@@ -122,20 +114,19 @@ $(function (){
                     text: `<i class="fa fa-file-pdf-o text-primary" aria-hidden="true"></i>  <small class='text-primary'>PDF</small>`,
                     pageSize: 'A4',
                     orientation: 'landscape',
-                    // customize: function (doc) {
-                    //     var cols = [];
-                    //     cols[0] = {text: 'Left part', alignment: 'left', margin:[20] };
-                    //     cols[1] = {text: 'Right part', alignment: 'right', margin:[0,0,20] };
-                    //     doc.content[1].table.widths = [
-                    //         '10%',
-                    //         '10%',
-                    //         '10%',
-                    //         '15%',
-                    //         '15%',
-                    //         '25%',
-                    //         '15%'
-                    //     ]
-                    // }
+                    customize: function (doc) {
+                        doc.styles.tableBodyEven.alignment = 'center';
+                        doc.styles.tableBodyOdd.alignment = 'center';
+                        doc.content[1].table.widths = [
+                            '10%',
+                            '10%',
+                            '10%',
+                            '15%',
+                            '15%',
+                            '25%',
+                            '15%'
+                        ]
+                    }
                 },
             ],
         });

@@ -28,18 +28,17 @@
     <div class="row justify-content-center">
         <div class="card shadow">
             <div class="card-header">
-                <!-- <h6 class="m-0 font-weight-bold text-danger">
-                    Archived patient <i class="far fa-hand-point-right text-primary"></i>
-                    <a href="" class="text-danger">list.</a>
-                </h6> -->
-                <!-- <input type="date" name="" id=""> -->
-                <div class="input-group">
+                <h6 class="m-2 p-1">
+                    Total records: <span class="text-success font-weight-bold mr-3">{{logs}}</span>
+                    Total vehicles still parked-in: <span class="text-success font-weight-bold mr-3">{{still_parked_in}}</span>
+                </h6>
+                <div class="input-group m-0 p-0">
                     <div class="col-md-6 mb-2">
-                        <small class="text-primary font-weight-bold">Date Time-in (From)</small>
+                        <small class="text-primary font-weight-bold">Date (From)</small>
                         <input id="date_from" type="date" class="form-control">
                     </div>
                     <div class="col-md-6 mb-2">
-                        <small class="text-primary font-weight-bold">Date Time-out (To)</small>
+                        <small class="text-primary font-weight-bold">Date (To)</small>
                         <input id="date_to" type="date" class="form-control">
                     </div>
                     <div class="col-md-3">

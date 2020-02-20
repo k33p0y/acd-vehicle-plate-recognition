@@ -92,12 +92,21 @@ def history(request):
 
 # history list datatable page
 def history_list(request):
-    # disconnect camera
-    disconnectCamera()
+    if request.user.is_authenticated:
+        # disconnect camera
+        disconnectCamera()
 
-    context = {}
-    template_name = 'vehicle/history-list.html'
-    return render(request, template_name, context)
+        logs = Log.objects.count()
+        still_parked_in = Log.objects.filter(datetime_out__isnull=True).count()
+
+        context = {
+            'logs': logs,
+            'still_parked_in': still_parked_in
+        }
+        template_name = 'vehicle/history-list.html'
+        return render(request, template_name, context)
+    else:
+        return redirect('/home/')
 
 # return filtered history list as JSON
 def history_list_json(request):
@@ -107,8 +116,8 @@ def history_list_json(request):
     data = dict()
     
     queryset = Log.objects.select_related('vehicle', 'guard', 'edited_by').values(
-        'vehicle__plate', 'vehicle__v_type', 'vehicle__color', 'datetime_in', 'datetime_out', 'reason', 'edited_by__first_name', 'edited_by__last_name'
-    ).filter(datetime_in__date__gte=date_from, datetime_out__date__lte=date_to)
+        'vehicle__plate', 'vehicle__v_type', 'vehicle__color', 'datetime_in', 'datetime_out', 'reason', 'guard__username'
+    ).filter(datetime_in__date__gte=date_from, datetime_in__date__lte=date_to)
         
     data = list(queryset)
     return JsonResponse(data, safe=False)
