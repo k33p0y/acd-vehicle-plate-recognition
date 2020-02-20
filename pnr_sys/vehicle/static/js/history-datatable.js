@@ -104,41 +104,40 @@ $(function (){
                     targets: [3, 4]
                 },
             ],
-            // dom: 'Bfrtip', // export to excel
-            // buttons: [
-            //     {
-            //         extend: 'excelHtml5',
-            //         title: `Patient Utilization`,
-            //         // messageTop: `<span>The quick brown fox</span>`,
-            //         text: `<i class="fas fa-download text-primary fa-lg"></i> <span class='text-primary font-weight-bold'>Export to Excel</span>`,
-            //         exportOptions: {
-            //             columns: [12, 0, 1, 2, 4, 3, 5, 6, 8, 7, 10],
-            //             format: {
-            //                 header: function (data, columnIndex) {
-            //                     if (columnIndex === 12) {
-            //                         return 'No.'
-            //                     } else if (columnIndex === 0) {
-            //                         return 'Date Utilization'
-            //                     } else if (columnIndex === 1) {
-            //                         return 'Control Number'
-            //                     } else if (columnIndex === 2) {
-            //                         return 'Patient'
-            //                     } else if (columnIndex === 4) { 
-            //                         return 'Address'
-            //                     } else if (columnIndex === 5) { 
-            //                         return 'Assistance'
-            //                     } else return data;
-            //                 },
-            //                 body: function (data, rowIndex, columnIndex, node) {
-            //                     if (columnIndex === 0) { // No. column
-            //                         return data = rowIndex+1;
-            //                     } else return data;
-            //                 }
-            //             },
-            //         }
-            //     }
-                    
-            // ],
+            dom: 'Bfrtip', // export to excel, pdf, csv
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    title: `Vehicle History Log`,
+                    text: `<i class="fa fa-file-excel-o text-primary" aria-hidden="true"></i> <small class='text-primary'>Excel</small>`,
+                },
+                {
+                    extend: 'csvHtml5',
+                    title: `Vehicle History Log`,
+                    text: `<i class="fa fa-table text-primary" aria-hidden="true"></i>  <small class='text-primary'>CSV</small>`,
+                },
+                {
+                    extend: 'pdfHtml5',
+                    title: `Vehicle History Log`,
+                    text: `<i class="fa fa-file-pdf-o text-primary" aria-hidden="true"></i>  <small class='text-primary'>PDF</small>`,
+                    pageSize: 'A4',
+                    orientation: 'landscape',
+                    // customize: function (doc) {
+                    //     var cols = [];
+                    //     cols[0] = {text: 'Left part', alignment: 'left', margin:[20] };
+                    //     cols[1] = {text: 'Right part', alignment: 'right', margin:[0,0,20] };
+                    //     doc.content[1].table.widths = [
+                    //         '10%',
+                    //         '10%',
+                    //         '10%',
+                    //         '15%',
+                    //         '15%',
+                    //         '25%',
+                    //         '15%'
+                    //     ]
+                    // }
+                },
+            ],
         });
     };
 
