@@ -1,6 +1,9 @@
 {% if logged %}
     <input type="hidden" id="flow" value="out">
-    <button type="button" class="btn btn-danger btn-block" onclick="parkInOut()">Park-Out Vehicle</button>
+    <!-- <button type="button" class="btn btn-danger btn-block" onclick="parkInOut()">Park-Out Vehicle</button> -->
+    <div class="alert alert-info" role="alert" id="success-remove-alert" hidden> 
+        Car successfully logged out.
+    </div>
 {% else %}
     <input type="hidden" id="flow" value="in">
     <div class="form-group"><br>
@@ -69,5 +72,10 @@
             parkInOut();
         }
     };
+
+    if ($('#flow').val() === 'out'){
+        parkInOut();
+        $('#success-remove-alert').removeAttr('hidden')
+    }
 </script>
 {% endblock script %}
