@@ -5,11 +5,13 @@ from django.apps import apps
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from datetime import datetime, timedelta, time
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from calendar import monthrange
 import cv2
 from .forms import NameForm
+from .models import Vehicle, Log
+
 def landing(request):
     print(request.user)
     if request.user.is_authenticated :
@@ -88,9 +90,33 @@ def history(request):
     }
     return render(request, 'vehicle/History.html', context)
 
+# history list datatable page
+def history_list(request):
+    # disconnect camera
+    disconnectCamera()
+
+    context = {}
+    template_name = 'vehicle/history-list.html'
+    return render(request, template_name, context)
+
+# return filtered history list as JSON
+def history_list_json(request):
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+
+    data = dict()
+    
+    queryset = Log.objects.select_related('vehicle', 'guard', 'edited_by').values(
+        'vehicle__plate', 'vehicle__v_type', 'vehicle__color', 'datetime_in', 'datetime_out', 'reason', 'edited_by__first_name', 'edited_by__last_name'
+    ).filter(datetime_in__date__gte=date_from, datetime_out__date__lte=date_to)
+        
+    data = list(queryset)
+    return JsonResponse(data, safe=False)
+
 def disconnectCamera():
     cam = cv2.VideoCapture(0)
     cam.release()
+
 def signup(request):
     return render(request, 'vehicle/signup.html')
 

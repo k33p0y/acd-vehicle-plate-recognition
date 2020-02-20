@@ -1,0 +1,60 @@
+{% extends 'vehicle/base.html' %}
+{% load static %}
+
+<!-- CSS import to this page only -->
+{% block css %}
+    <link rel="stylesheet" href="{% static 'dataTables-1.10.19/jquery.dataTables.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dataTables-1.10.19/responsive-2.2.2/responsive.dataTables.min.css' %}">
+{% endblock css %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="card shadow">
+            <div class="card-header">
+                <!-- <h6 class="m-0 font-weight-bold text-danger">
+                    Archived patient <i class="far fa-hand-point-right text-primary"></i>
+                    <a href="" class="text-danger">list.</a>
+                </h6> -->
+                <!-- <input type="date" name="" id=""> -->
+                <div class="input-group">
+                    <div class="col-md-6 mb-2">
+                        <small class="text-primary font-weight-bold">Date Time-in (From)</small>
+                        <input id="date_from" type="date" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <small class="text-primary font-weight-bold">Date Time-out (To)</small>
+                        <input id="date_to" type="date" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary form-control" type="submit" id="btn-filter-history">Search</button>
+                    </div>
+                </div> 
+            </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table display responsive" id="table-history" width="100%" cellspacing="0">
+                  <thead>
+                    <th>Plate</th>
+                    <th>Vehicle</th>
+                    <th>Color</th>
+                    <th>Date Time-in</th>
+                    <th>Date Time-out</th>
+                    <th>Purpose</th>
+                    <th>Logged By</th>
+                  </thead>
+                  <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+    </div>
+{% endblock content %}
+
+<!-- JS import to this page only -->
+{% block script %}
+    <script src="{% static 'sweetalert2-8.8.5/js/sweetalert2.all.min.js' %}"></script>
+    <script src="{% static 'moment-2.24.0/moment.min.js' %}"></script>
+    <script src="{% static 'dataTables-1.10.19/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'dataTables-1.10.19/responsive-2.2.2/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'js/history-datatable.js' %}"></script>
+{% endblock script %}

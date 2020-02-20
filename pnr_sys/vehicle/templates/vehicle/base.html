@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{% static 'bootstrap-4.0.0/css/bootstrap.min.css' %}"> <!-- Bootstrap 4.0.0 -->
     <link rel="stylesheet" href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}"> <!-- Font Awesome 4.7.0-->
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    {% block css %}{% endblock css %} <!-- Dynamic CSS imports-->
 
     {% if title %}
     <title>ACD-VPR-SYS - {{ title }}</title>
