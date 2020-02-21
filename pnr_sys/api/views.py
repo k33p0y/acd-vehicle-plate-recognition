@@ -51,6 +51,21 @@ def check_camera(request):
 
     return JsonResponse({'status': True, 'time_frame': i})
 
+def check_cam_index():
+    i = 0
+    found = False
+    for i in range(4):
+            capture = cv2.VideoCapture(i)
+            if not capture:
+                print("UNABLE TO CAPTURE CAMERA")
+            else:
+                found = True
+                print("taken camera from index: ", i)
+                break
+
+    if found == False:
+        print("!!! No camera was found.")
+        sys.exit()
 
 def check_captured(request):
     print(platform.system())
@@ -156,6 +171,7 @@ def gen(camera, activate):
 
 
 class VideoCamera(object):
+    # check_cam_index();
     def __init__(self):
         self.video = cv2.VideoCapture(0)
 
